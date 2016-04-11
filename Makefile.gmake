@@ -3,5 +3,5 @@ TARGET=LIB
 OBJDIR=../tmp/
 OUTPUT=../lib/libcodes$(_LIB)
 
-include ../gmake.build/common.gmake
+include ../build/common.gmake
 
