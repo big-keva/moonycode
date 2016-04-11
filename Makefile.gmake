@@ -1,0 +1,7 @@
+SOURCE=utf16_lo.cpp  utf16_up.cpp  utf16win.cpp  win_dos.cpp  win_iso.cpp  win_koi.cpp  win_mac.cpp
+TARGET=LIB
+OBJDIR=../tmp/
+OUTPUT=../lib/libcodes$(_LIB)
+
+include ../gmake.build/common.gmake
+
