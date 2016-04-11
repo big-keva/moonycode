@@ -41,7 +41,7 @@ namespace codepages
   extern  const widechar  xlatIsoToWin[];
   extern  const widechar  xlatMacToWin[];
 
-  inline  unsigned  utf8cbchar( const char* ptrtop, const char* ptrend )
+  inline  size_t  utf8cbchar( const char* ptrtop, const char* ptrend )
   {
     unsigned char chnext;
     int           nleast;
@@ -81,7 +81,7 @@ namespace codepages
     return ptrtop - ptrorg;
   }
 
-  inline  widechar  utf8decode( const char* ptrtop, unsigned chsize )
+  inline  widechar  utf8decode( const char* ptrtop, size_t chsize )
   {
     unsigned  ucchar;
 
@@ -113,7 +113,7 @@ namespace codepages
     return ucchar;
   }
 
-  inline  int utf8encode( char* output, unsigned cchout, widechar chnext )
+  inline  size_t  utf8encode( char* output, size_t  cchout, widechar chnext )
   {
     char* outorg = output;
     char*           outend = output + cchout;
@@ -144,18 +144,17 @@ namespace codepages
     return output - outorg;
   }
 
-  inline  bool  utf8detect( const char*     pszstr,
-                            unsigned        cchstr = (unsigned)-1 )
+  inline  bool  utf8detect( const char* pszstr, size_t  cchstr = (size_t)-1 )
   {
     const char* pszend;
     bool        uppers = false;
 
-    if ( cchstr != (unsigned)-1 ) pszend = pszstr + cchstr;
+    if ( cchstr != (size_t)-1 ) pszend = pszstr + cchstr;
       else for ( pszend = pszstr; *pszend != 0; ++pszend ) (void)NULL;
 
     while ( pszstr < pszend )
     {
-      unsigned nchars;
+      size_t  nchars;
 
       if ( (nchars = utf8cbchar( pszstr, pszend )) == 0 )
         return pszend - pszstr <= 1 ? uppers : false;
@@ -165,18 +164,17 @@ namespace codepages
     return uppers;
   }
 
-  inline  unsigned  utf8strlen( const char*     pszstr,
-                                unsigned        cchstr = (unsigned)-1 )
+  inline  size_t  utf8strlen( const char* pszstr, size_t  cchstr = (size_t)-1 )
   {
     const char* pszend;
     unsigned    cchlen;
 
-    if ( cchstr != (unsigned)-1 ) pszend = pszstr + cchstr;
+    if ( cchstr != (size_t)-1 ) pszend = pszstr + cchstr;
       else for ( pszend = pszstr; *pszend != 0; ++pszend ) (void)NULL;
 
     for ( cchlen = 0; pszstr < pszend; )
     {
-      unsigned nchars;
+      size_t  nchars;
 
       if ( (nchars = utf8cbchar( pszstr, pszend )) == 0 ) ++pszstr;
         else 
@@ -188,19 +186,19 @@ namespace codepages
     return cchlen;
   }
 
-  inline  int   utf8decode( widechar* output, unsigned maxlen, const char* pszstr, unsigned cchstr = (unsigned)-1 )
+  inline  size_t  utf8decode( widechar* output, size_t  maxlen, const char* pszstr, size_t  cchstr = (unsigned)-1 )
   {
     widechar*   outorg = output;
     widechar*   outend = output + maxlen;
     const char* pszend;
 
-    if ( cchstr != (unsigned)-1 ) pszend = pszstr + cchstr;
+    if ( cchstr != (size_t)-1 ) pszend = pszstr + cchstr;
       else for ( pszend = pszstr; *pszend != 0; ++pszend ) (void)NULL;
 
     while ( pszstr < pszend )
     {
-      unsigned  nchars;
       widechar  ucchar;
+      size_t    nchars;
 
     // on non-utf strings, return -1 as non-utf string error
       if ( (nchars = utf8cbchar( pszstr, pszend )) == 0 )
@@ -221,19 +219,19 @@ namespace codepages
     return output - outorg;
   }
 
-  inline  int utf8encode( char* output, unsigned cchout, const widechar* pwsstr, unsigned cchstr = (unsigned)-1 )
+  inline  size_t  utf8encode( char* output, size_t  cchout, const widechar* pwsstr, size_t  cchstr = (size_t)-1 )
   {
     char*           outorg = output;
     char*           outend = output + cchout;
     const widechar* pwsend;
 
-    if ( cchstr != (unsigned)-1 ) pwsend = pwsstr + cchstr;
+    if ( cchstr != (size_t)-1 ) pwsend = pwsstr + cchstr;
       else for ( pwsend = pwsstr; *pwsend != 0; ++pwsend )  (void)NULL;
 
     while ( pwsstr < pwsend )
     {
       widechar  chnext = *pwsstr++;
-      int       cchenc;
+      size_t    cchenc;
 
       if ( (cchenc = utf8encode( output, cchout, *pwsstr++ )) <= 0 )  return cchenc;
         else  output += cchenc;
@@ -244,19 +242,16 @@ namespace codepages
   }
 
   template <class __cvt__, class O, class S>
-  inline  unsigned  encode( O*          output,
-                            unsigned    cchout,
-                            const S*    source,
-                            unsigned    srclen = (unsigned)-1 )
+  inline  size_t  encode( O*  output, size_t  cchout, const S*  source, size_t srclen = (size_t)-1 )
   {
     const S*  srcend;
     O*        outend;
 
-    if ( srclen == (unsigned)-1 )
+    if ( srclen == (size_t)-1 )
       for ( srclen = 0; source[srclen] != 0; ++srclen ) (void)NULL;
 
     if ( srclen > cchout )
-      return (unsigned)-1;
+      return (size_t)-1;
  
     for ( outend = output + cchout, srcend = source + srclen; source < srcend; )
       *output++ = (O)__cvt__::translate( *source++ );
@@ -287,14 +282,14 @@ namespace codepages
       {  return xlatUtf16ToWin[__cvt__::translate( c ) >> 8][__cvt__::translate( c & 0x00ff )];  }
   };
 
-  inline  unsigned  strtolower( widechar* o, unsigned l, const widechar* s, unsigned u = (unsigned)-1 )
+  inline  size_t  strtolower( widechar* o, size_t l, const widechar* s, size_t  u = (size_t)-1 )
     {  return encode<__cvt_char__<xlatUtf16Lower, __cvt_null__> >( o, l, s, u );  }
 
-  inline  unsigned  strtoupper( widechar* o, unsigned l, const widechar* s, unsigned u = (unsigned)-1 )
+  inline  size_t  strtoupper( widechar* o, size_t l, const widechar* s, size_t  u = (size_t)-1 )
     {  return encode<__cvt_char__<xlatUtf16Upper, __cvt_null__> >( o, l, s, u );  }
 
   template <const widechar xt[]>
-  inline  unsigned  __impl__strtocase__( unsigned codepage, char*     o, unsigned l, const char* s, unsigned u = (unsigned)-1 )
+  inline  size_t  __impl__strtocase__( unsigned codepage, char* o, size_t l, const char* s, size_t u = (size_t)-1 )
     {
       switch ( codepage )
       {
@@ -327,13 +322,13 @@ namespace codepages
             const char* e;
             char*       b;
 
-            if ( u == (unsigned)-1 )  for ( e = s; *e != 0; ++e ) (void)NULL;
+            if ( u == (size_t)-1 )  for ( e = s; *e != 0; ++e ) (void)NULL;
               else e = s + u;
 
             for ( b = o; s < e; ++s )
             {
               widechar  c;
-              int       n;
+              size_t    n;
 
               if ( (n = utf8cbchar( s, e )) != 0 )
               {
@@ -359,17 +354,17 @@ namespace codepages
       }
     }
 
-  inline  unsigned  strtolower( unsigned codepage, char*     o, unsigned l, const char* s, unsigned u = (unsigned)-1 )
+  inline  size_t  strtolower( unsigned codepage, char* o, size_t l, const char* s, size_t u = (size_t)-1 )
     {
       return __impl__strtocase__<xlatUtf16Lower>( codepage, o, l, s, u );
     }
 
-  inline  unsigned  strtoupper( unsigned codepage, char*     o, unsigned l, const char* s, unsigned u = (unsigned)-1 )
+  inline  size_t  strtoupper( unsigned codepage, char* o, size_t l, const char* s, size_t u = (size_t)-1 )
     {
       return __impl__strtocase__<xlatUtf16Upper>( codepage, o, l, s, u );
     }
 
-  inline  unsigned  mbcstowide( unsigned codepage, widechar* o, unsigned l, const char* s, unsigned u = (unsigned)-1 )
+  inline  size_t  mbcstowide( unsigned codepage, widechar* o, size_t l, const char* s, size_t u = (size_t)-1 )
     {
       switch ( codepage )
       {
@@ -400,7 +395,7 @@ namespace codepages
       }
     }
 
-  inline  unsigned  widetombcs( unsigned codepage, char* o, unsigned l, const widechar* s, unsigned u = (unsigned)-1 )
+  inline  size_t  widetombcs( unsigned codepage, char* o, size_t l, const widechar* s, size_t u = (size_t)-1 )
   {
       switch ( codepage )
       {

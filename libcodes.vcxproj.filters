@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="codes.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="utf16win.cpp" />
+    <ClCompile Include="utf16_lo.cpp" />
+    <ClCompile Include="utf16_up.cpp" />
+    <ClCompile Include="win_dos.cpp" />
+    <ClCompile Include="win_iso.cpp" />
+    <ClCompile Include="win_koi.cpp" />
+    <ClCompile Include="win_mac.cpp" />
+  </ItemGroup>
+</Project>
