@@ -2,6 +2,7 @@
 # define  __codes_h__
 # include <limits.h>
 # include <stdint.h>
+# include <string.h>
 
 # if !defined( __widechar_defined__ )
 # define  __widechar_defined__
@@ -242,7 +243,7 @@ namespace codepages
     return output - outorg;
   }
 
-  template <class __cvt__, const class O, class S>
+  template <class __cvt__, class O, class S>
   inline  unsigned  encode( O*          output,
                             unsigned    cchout,
                             const S*    source,
