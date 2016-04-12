@@ -38,7 +38,7 @@ namespace codepages
     0x0448, 0x0449, 0x044A, 0x044B, 0x044C, 0x044D, 0x044E, 0x044F
   };
 
-  static const char ucAnyone[256] =
+  static const unsigned char  ucAnyone[256] =
   {
     '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F',
     '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F',
@@ -74,7 +74,7 @@ namespace codepages
     '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F'
   };
 
-  static const char uc125100[256] =
+  static const unsigned char  uc125100[256] =
   {
     '\x00', '\x01', '\x02', '\x03', '\x04', '\x05', '\x06', '\x07',
     '\x08', '\x09', '\x0A', '\x0B', '\x0C', '\x0D', '\x0E', '\x0F',
@@ -114,7 +114,7 @@ namespace codepages
   // Combining diacritical marks, flushed to zero to be ignored
   // while converting string from unicode to 1251
   //
-  static const char uc125103[256] =
+  static const unsigned char  uc125103[256] =
   {
     '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00',
     '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00',
@@ -150,7 +150,7 @@ namespace codepages
     '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F'
   };
 
-  static const char uc125104[256] =
+  static const unsigned char  uc125104[256] =
   {
     '\x3F', '\xA8', '\x80', '\x81', '\xAA', '\xBD', '\xB2', '\xAF',
     '\xA3', '\x8A', '\x8C', '\x8E', '\x8D', '\x3F', '\xA1', '\x8F',
@@ -186,7 +186,7 @@ namespace codepages
     '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F'
   };
 
-  static const char uc125120[256] =
+  static const unsigned char  uc125120[256] =
   {
     '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F',
     '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F',
@@ -223,7 +223,7 @@ namespace codepages
     '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00'
   };
 
-  static const char uc125121[256] =
+  static const unsigned char  uc125121[256] =
   {
     '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F',
     '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F',
@@ -259,7 +259,7 @@ namespace codepages
     '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F', '\x3F'
   };
 
-  const char*  xlatUtf16ToWin[256] =
+  const unsigned char*  xlatUtf16ToWin[256] =
   {
     uc125100, ucAnyone, ucAnyone, uc125103, uc125104, ucAnyone, ucAnyone, ucAnyone,
     ucAnyone, ucAnyone, ucAnyone, ucAnyone, ucAnyone, ucAnyone, ucAnyone, ucAnyone,

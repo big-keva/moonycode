@@ -27,19 +27,50 @@ namespace codepages
   const unsigned codepage_utf8 = 0x10;
 
 /* tyranslation tables          */
-  extern  const widechar  xlatWinToUtf16[];
-  extern  const char*     xlatUtf16ToWin[];
-  extern  const widechar  xlatUtf16Lower[];
-  extern  const widechar  xlatUtf16Upper[];
+  extern  const widechar        xlatWinToUtf16[];
+  extern  const unsigned char*  xlatUtf16ToWin[];
+  extern  const widechar        xlatUtf16Lower[];
+  extern  const widechar        xlatUtf16Upper[];
 
-  extern  const widechar  xlatWinToKoi[];
-  extern  const widechar  xlatWinToDos[];
-  extern  const widechar  xlatWinToIso[];
-  extern  const widechar  xlatWinToMac[];
-  extern  const widechar  xlatKoiToWin[];
-  extern  const widechar  xlatDosToWin[];
-  extern  const widechar  xlatIsoToWin[];
-  extern  const widechar  xlatMacToWin[];
+  extern  const unsigned char   xlatWinToKoi[];
+  extern  const unsigned char   xlatWinToDos[];
+  extern  const unsigned char   xlatWinToIso[];
+  extern  const unsigned char   xlatWinToMac[];
+  extern  const unsigned char   xlatKoiToWin[];
+  extern  const unsigned char   xlatDosToWin[];
+  extern  const unsigned char   xlatIsoToWin[];
+  extern  const unsigned char   xlatMacToWin[];
+
+  // convertor templates
+
+  struct __cvt_null__
+  {
+    static const widechar  translate ( unsigned c )
+      {  return c;  }
+  };
+
+  template <const widechar table[], class __cvt__ = __cvt_null__>
+  struct __cvt_char__
+  {
+    static const widechar translate( unsigned c )
+      {  return table[__cvt__::translate( c )];  }
+  };
+
+  template <const unsigned char table[], class __cvt__ = __cvt_null__>
+  struct __cvt_byte__
+  {
+    static const unsigned char  translate( unsigned c )
+      {  return table[__cvt__::translate( c )];  }
+  };
+
+  template <class __cvt__ = __cvt_null__>
+  struct __utf_1251__
+  {
+    static const widechar translate( unsigned c )
+      {  return xlatUtf16ToWin[__cvt__::translate( c ) >> 8][__cvt__::translate( c ) & 0x00ff];  }
+  };
+
+  // utf-8 functions
 
   inline  size_t  utf8cbchar( const char* ptrtop, const char* ptrend )
   {
@@ -81,6 +112,7 @@ namespace codepages
     return ptrtop - ptrorg;
   }
 
+  template <class __cvt__ = __cvt_null__>
   inline  widechar  utf8decode( const char* ptrtop, size_t chsize )
   {
     unsigned  ucchar;
@@ -89,7 +121,7 @@ namespace codepages
     switch ( chsize-- )
     {
       case 1:
-        return (unsigned char)*ptrtop;
+        return __cvt__::translate( (unsigned char)*ptrtop );
       case 2:
         ucchar = (unsigned)(unsigned char)(*ptrtop++ & 0x1f);
         break;
@@ -110,38 +142,7 @@ namespace codepages
     }
     while ( chsize-- > 0 )
       ucchar = (ucchar << 6) | (unsigned char)(*ptrtop++ & 0x3f);
-    return ucchar;
-  }
-
-  inline  size_t  utf8encode( char* output, size_t  cchout, widechar chnext )
-  {
-    char* outorg = output;
-    char*           outend = output + cchout;
-
-    if ( (chnext & ~0x007f) == 0 )
-    {
-      if ( output < outend )  *output++ = (char)(unsigned char)chnext;
-        else return -1;
-    }
-      else
-    if ( (chnext & ~0x07ff) == 0 )
-    {
-      if ( output >= outend - 1 )
-        return -1;
-      *output++ = (char)(0xC0 | (unsigned char)(chnext >> 6));
-      *output++ = (char)(0x80 | (unsigned char)(chnext & 0x3f));
-    }
-      else
-    {
-      if ( output >= outend - 2 )
-        return -1;
-      *output++ = (char)(0xE0 | (unsigned char)(chnext >> 12));
-      *output++ = (char)(0x80 | (unsigned char)((chnext >> 6) & 0x3F));
-      *output++ = (char)(0x80 | (unsigned char)(chnext & 0x3F));
-    }
-    if ( output < outend )
-      *output = '\0';
-    return output - outorg;
+    return __cvt__::translate( ucchar );
   }
 
   inline  bool  utf8detect( const char* pszstr, size_t  cchstr = (size_t)-1 )
@@ -186,10 +187,11 @@ namespace codepages
     return cchlen;
   }
 
-  inline  size_t  utf8decode( widechar* output, size_t  maxlen, const char* pszstr, size_t  cchstr = (unsigned)-1 )
+  template <class O, class __cvt__>
+  inline  size_t  __impl__utf8decode( O* output, size_t  maxlen, const char* pszstr, size_t  cchstr )
   {
-    widechar*   outorg = output;
-    widechar*   outend = output + maxlen;
+    O*          outorg = output;
+    O*          outend = output + maxlen;
     const char* pszend;
 
     if ( cchstr != (size_t)-1 ) pszend = pszstr + cchstr;
@@ -206,11 +208,11 @@ namespace codepages
         ++pszstr;
           continue;
       }
-      if ( (ucchar = utf8decode( pszstr, nchars )) == (widechar)-1 )
+      if ( (ucchar = utf8decode<__cvt__>( pszstr, nchars )) == (widechar)-1 )
         continue;
 
       if ( output < outend )
-        *output++ = ucchar;
+        *output++ = (O)ucchar;
 
       pszstr += nchars;
     }
@@ -219,27 +221,69 @@ namespace codepages
     return output - outorg;
   }
 
-  inline  size_t  utf8encode( char* output, size_t  cchout, const widechar* pwsstr, size_t  cchstr = (size_t)-1 )
+  template <class __cvt__ = __cvt_null__>
+  inline  size_t  utf8decode( widechar* output, size_t  maxlen, const char* pszstr, size_t  cchstr = (size_t)-1 )
+    {  return __impl__utf8decode<widechar, __cvt__>( output, maxlen, pszstr, cchstr );  }
+
+  template <class __cvt__ = __cvt_null__>
+  inline  size_t  utf8encode( char* output, size_t  cchout, widechar chnext )
   {
-    char*           outorg = output;
-    char*           outend = output + cchout;
-    const widechar* pwsend;
+    char* outorg = output;
+    char* outend = output + cchout;
+
+    chnext = __cvt__::translate( chnext );
+
+    if ( (chnext & ~0x007f) == 0 )
+    {
+      if ( output < outend )  *output++ = (char)(unsigned char)chnext;
+        else return -1;
+    }
+      else
+    if ( (chnext & ~0x07ff) == 0 )
+    {
+      if ( output >= outend - 1 )
+        return -1;
+      *output++ = (char)(0xC0 | (unsigned char)(chnext >> 6));
+      *output++ = (char)(0x80 | (unsigned char)(chnext & 0x3f));
+    }
+      else
+    {
+      if ( output >= outend - 2 )
+        return -1;
+      *output++ = (char)(0xE0 | (unsigned char)(chnext >> 12));
+      *output++ = (char)(0x80 | (unsigned char)((chnext >> 6) & 0x3F));
+      *output++ = (char)(0x80 | (unsigned char)(chnext & 0x3F));
+    }
+    if ( output < outend )
+      *output = '\0';
+    return output - outorg;
+  }
+
+  template <class S, class __cvt__ = __cvt_null__>
+  inline  size_t  __impl__utf8encode( char* output, size_t  cchout, const S* pwsstr, size_t  cchstr )
+  {
+    char*     outorg = output;
+    char*     outend = output + cchout;
+    const S*  pwsend;
 
     if ( cchstr != (size_t)-1 ) pwsend = pwsstr + cchstr;
       else for ( pwsend = pwsstr; *pwsend != 0; ++pwsend )  (void)NULL;
 
     while ( pwsstr < pwsend )
     {
-      widechar  chnext = *pwsstr++;
-      size_t    cchenc;
+      size_t  cchenc;
 
-      if ( (cchenc = utf8encode( output, cchout, *pwsstr++ )) <= 0 )  return cchenc;
+      if ( (cchenc = utf8encode<__cvt__>( output, cchout, *pwsstr++ )) <= 0 )  return cchenc;
         else  output += cchenc;
     }
     if ( output < outend )
       *output = '\0';
     return output - outorg;
   }
+
+  template <class __cvt__ = __cvt_null__>
+  inline  size_t  utf8encode( char* output, size_t  cchout, const widechar* pwsstr, size_t  cchstr = (size_t)-1 )
+    {  return __impl__utf8encode<widechar, __cvt__>( output, cchout, pwsstr, cchstr );  }
 
   template <class __cvt__, class O, class S>
   inline  size_t  encode( O*  output, size_t  cchout, const S*  source, size_t srclen = (size_t)-1 )
@@ -262,31 +306,11 @@ namespace codepages
     return srclen;
   }
 
-  struct __cvt_null__
-  {
-    static const widechar  translate ( unsigned c )
-      {  return c;  }
-  };
-
-  template <const widechar table[], class __cvt__>
-  struct __cvt_char__
-  {
-    static const widechar  translate( unsigned c )
-      {  return table[__cvt__::translate( c )];  }
-  };
-
-  template <class __cvt__>
-  struct __utf_1251__
-  {
-    static const widechar translate( unsigned c )
-      {  return xlatUtf16ToWin[__cvt__::translate( c ) >> 8][__cvt__::translate( c & 0x00ff )];  }
-  };
-
   inline  size_t  strtolower( widechar* o, size_t l, const widechar* s, size_t  u = (size_t)-1 )
-    {  return encode<__cvt_char__<xlatUtf16Lower, __cvt_null__> >( o, l, s, u );  }
+    {  return encode<__cvt_char__<xlatUtf16Lower> >( o, l, s, u );  }
 
   inline  size_t  strtoupper( widechar* o, size_t l, const widechar* s, size_t  u = (size_t)-1 )
-    {  return encode<__cvt_char__<xlatUtf16Upper, __cvt_null__> >( o, l, s, u );  }
+    {  return encode<__cvt_char__<xlatUtf16Upper> >( o, l, s, u );  }
 
   template <const widechar xt[]>
   inline  size_t  __impl__strtocase__( unsigned codepage, char* o, size_t l, const char* s, size_t u = (size_t)-1 )
@@ -294,29 +318,29 @@ namespace codepages
       switch ( codepage )
       {
         case codepage_koi8:
-          return encode<__cvt_char__<xlatWinToKoi,
+          return encode<__cvt_byte__<xlatWinToKoi,
                         __utf_1251__<
                         __cvt_char__<xt,
                         __cvt_char__<xlatWinToUtf16,
-                        __cvt_char__<xlatKoiToWin, __cvt_null__> > > > > >( o, l, s, u );
+                        __cvt_byte__<xlatKoiToWin> > > > > >( o, l, (const unsigned char*)s, u );
         case codepage_866:
-          return encode<__cvt_char__<xlatWinToDos,
+          return encode<__cvt_byte__<xlatWinToDos,
                         __utf_1251__<
                         __cvt_char__<xt,
                         __cvt_char__<xlatWinToUtf16,
-                        __cvt_char__<xlatDosToWin, __cvt_null__> > > > > >( o, l, s, u );
+                        __cvt_byte__<xlatDosToWin> > > > > >( o, l, (const unsigned char*)s, u );
         case codepage_iso:
-          return encode<__cvt_char__<xlatWinToIso,
+          return encode<__cvt_byte__<xlatWinToIso,
                         __utf_1251__<
                         __cvt_char__<xt,
                         __cvt_char__<xlatWinToUtf16,
-                        __cvt_char__<xlatIsoToWin, __cvt_null__> > > > > >( o, l, s, u );
+                        __cvt_byte__<xlatIsoToWin> > > > > >( o, l, (const unsigned char*)s, u );
         case codepage_mac:
-          return encode<__cvt_char__<xlatWinToMac,
+          return encode<__cvt_byte__<xlatWinToMac,
                         __utf_1251__<
                         __cvt_char__<xt,
                         __cvt_char__<xlatWinToUtf16,
-                        __cvt_char__<xlatMacToWin, __cvt_null__> > > > > >( o, l, s, u );
+                        __cvt_byte__<xlatMacToWin> > > > > >( o, l, (const unsigned char*)s, u );
         case codepage_utf8:
           {
             const char* e;
@@ -332,7 +356,7 @@ namespace codepages
 
               if ( (n = utf8cbchar( s, e )) != 0 )
               {
-                c = __cvt_char__<xt, __cvt_null__>::translate( utf8decode( s, n ) );
+                c = utf8decode<__cvt_char__<xt> >( s, n );
                   s += n - 1;
                 if ( (n = utf8encode( o, l, c )) < 0 )
                   return n;
@@ -350,7 +374,7 @@ namespace codepages
         default:
           return encode<__utf_1251__<
                         __cvt_char__<xt,
-                        __cvt_char__<xlatWinToUtf16, __cvt_null__> > > >( o, l, s, u );
+                        __cvt_char__<xlatWinToUtf16> > > >( o, l, (const unsigned char*)s, u );
       }
     }
 
@@ -370,60 +394,184 @@ namespace codepages
       {
         case codepage_koi8:
           return encode<__cvt_char__<xlatWinToUtf16,
-                        __cvt_char__<xlatKoiToWin,
-                        __cvt_null__> > >( o, l, s, u );
+                        __cvt_byte__<xlatKoiToWin> > >( o, l, (const unsigned char*)s, u );
         case codepage_866:
           return encode<__cvt_char__<xlatWinToUtf16,
-                        __cvt_char__<xlatDosToWin,
-                        __cvt_null__> > >( o, l, s, u );
+                        __cvt_byte__<xlatDosToWin> > >( o, l, (const unsigned char*)s, u );
         case codepage_iso:
           return encode<__cvt_char__<xlatWinToUtf16,
-                        __cvt_char__<xlatIsoToWin,
-                        __cvt_null__> > >( o, l, s, u );
+                        __cvt_byte__<xlatIsoToWin> > >( o, l, (const unsigned char*)s, u );
         case codepage_mac:
           return encode<__cvt_char__<xlatWinToUtf16,
-                        __cvt_char__<xlatMacToWin,
-                        __cvt_null__> > >( o, l, s, u );
+                        __cvt_byte__<xlatMacToWin> > >( o, l, (const unsigned char*)s, u );
         case codepage_utf8:
           return utf8decode( o, l, s, u );
         case codepage_1251:
         case codepage_1252:
         case codepage_1254:
         default:
-          return encode<__cvt_char__<xlatWinToUtf16,
-                        __cvt_null__> >( o, l, s, u );
+          return encode<__cvt_char__<xlatWinToUtf16> >( o, l, (const unsigned char*)s, u );
       }
     }
 
   inline  size_t  widetombcs( unsigned codepage, char* o, size_t l, const widechar* s, size_t u = (size_t)-1 )
-  {
+    {
       switch ( codepage )
       {
         case codepage_koi8:
-          return encode<__cvt_char__<xlatWinToKoi,
-                        __utf_1251__<
-                        __cvt_null__> > >( o, l, s, u );
+          return encode<__cvt_byte__<xlatWinToKoi, __utf_1251__<> > >( o, l, s, u );
         case codepage_866:
-          return encode<__cvt_char__<xlatWinToDos,
-                        __utf_1251__<
-                        __cvt_null__> > >( o, l, s, u );
+          return encode<__cvt_byte__<xlatWinToDos, __utf_1251__<> > >( o, l, s, u );
         case codepage_iso:
-          return encode<__cvt_char__<xlatWinToIso,
-                        __utf_1251__<
-                        __cvt_null__> > >( o, l, s, u );
+          return encode<__cvt_byte__<xlatWinToIso, __utf_1251__<> > >( o, l, s, u );
         case codepage_mac:
-          return encode<__cvt_char__<xlatWinToMac,
-                        __utf_1251__<
-                        __cvt_null__> > >( o, l, s, u );
+          return encode<__cvt_byte__<xlatWinToMac, __utf_1251__<> > >( o, l, s, u );
         case codepage_utf8:
           return utf8encode( o, l, s, u );
         case codepage_1251:
         case codepage_1252:
         case codepage_1254:
         default:
-          return encode<__utf_1251__<__cvt_null__> >( o, l, s, u );
+          return encode<__utf_1251__<> >( o, l, s, u );
       }
-  }
+    }
+
+  inline  size_t  mbcstombcs( unsigned dstcps, char* o, size_t l, unsigned srccps, const char* s, size_t u = (size_t)-1 )
+    {
+      switch ( dstcps )
+      {
+        case codepage_1251:
+        case codepage_1252:
+        case codepage_1254:
+          switch ( srccps )
+          {
+            case codepage_koi8:
+              return encode<__cvt_byte__<xlatKoiToWin> >( o, l, (const unsigned char*)s, u );
+            case codepage_866:
+              return encode<__cvt_byte__<xlatDosToWin> >( o, l, (const unsigned char*)s, u );
+            case codepage_iso:
+              return encode<__cvt_byte__<xlatIsoToWin> >( o, l, (const unsigned char*)s, u );
+            case codepage_mac:
+              return encode<__cvt_byte__<xlatMacToWin> >( o, l, (const unsigned char*)s, u );
+            case codepage_utf8:
+              return __impl__utf8decode<char, __utf_1251__<> >( o, l, s, u );
+            default:
+              return encode<__cvt_null__>( o, l, (const unsigned char*)s, u );
+          }
+        case codepage_koi8:
+          switch ( srccps )
+          {
+            case codepage_1251:
+            case codepage_1252:
+            case codepage_1254:
+              return encode<__cvt_byte__<xlatWinToKoi> >( o, l, (const unsigned char*)s, u );
+            case codepage_866:
+              return encode<__cvt_byte__<xlatWinToKoi,
+                            __cvt_byte__<xlatDosToWin> > >( o, l, (const unsigned char*)s, u );
+            case codepage_iso:
+              return encode<__cvt_byte__<xlatWinToKoi,
+                            __cvt_byte__<xlatIsoToWin> > >( o, l, (const unsigned char*)s, u );
+            case codepage_mac:
+              return encode<__cvt_byte__<xlatWinToKoi,
+                            __cvt_byte__<xlatMacToWin> > >( o, l, (const unsigned char*)s, u );
+            case codepage_utf8:
+              return __impl__utf8decode<char, __cvt_byte__<xlatWinToKoi,
+                                              __utf_1251__<> > >( o, l, s, u );
+            default:
+              return encode<__cvt_null__>( o, l, (const unsigned char*)s, u );
+          }
+        case codepage_866:
+          switch ( srccps )
+          {
+            case codepage_1251:
+            case codepage_1252:
+            case codepage_1254:
+              return encode<__cvt_byte__<xlatWinToDos> >( o, l, (const unsigned char*)s, u );
+            case codepage_koi8:
+              return encode<__cvt_byte__<xlatWinToDos,
+                            __cvt_byte__<xlatKoiToWin> > >( o, l, (const unsigned char*)s, u );
+            case codepage_iso:
+              return encode<__cvt_byte__<xlatWinToDos,
+                            __cvt_byte__<xlatIsoToWin> > >( o, l, (const unsigned char*)s, u );
+            case codepage_mac:
+              return encode<__cvt_byte__<xlatWinToDos,
+                            __cvt_byte__<xlatMacToWin> > >( o, l, (const unsigned char*)s, u );
+            case codepage_utf8:
+              return __impl__utf8decode<char, __cvt_byte__<xlatWinToDos,
+                                              __utf_1251__<> > >( o, l, s, u );
+            default:
+              return encode<__cvt_null__>( o, l, (const unsigned char*)s, u );
+          }
+        case codepage_iso:
+          switch ( srccps )
+          {
+            case codepage_1251:
+            case codepage_1252:
+            case codepage_1254:
+              return encode<__cvt_byte__<xlatWinToIso> >( o, l, (const unsigned char*)s, u );
+            case codepage_koi8:
+              return encode<__cvt_byte__<xlatWinToIso,
+                            __cvt_byte__<xlatKoiToWin> > >( o, l, (const unsigned char*)s, u );
+            case codepage_866:
+              return encode<__cvt_byte__<xlatWinToIso,
+                            __cvt_byte__<xlatDosToWin> > >( o, l, (const unsigned char*)s, u );
+            case codepage_mac:
+              return encode<__cvt_byte__<xlatWinToIso,
+                            __cvt_byte__<xlatMacToWin> > >( o, l, (const unsigned char*)s, u );
+            case codepage_utf8:
+              return __impl__utf8decode<char, __cvt_byte__<xlatWinToIso,
+                                              __utf_1251__<> > >( o, l, s, u );
+            default:
+              return encode<__cvt_null__>( o, l, (const unsigned char*)s, u );
+          }
+        case codepage_mac:
+          switch ( srccps )
+          {
+            case codepage_1251:
+            case codepage_1252:
+            case codepage_1254:
+              return encode<__cvt_byte__<xlatWinToMac> >( o, l, (const unsigned char*)s, u );
+            case codepage_koi8:
+              return encode<__cvt_byte__<xlatWinToMac,
+                            __cvt_byte__<xlatKoiToWin> > >( o, l, (const unsigned char*)s, u );
+            case codepage_iso:
+              return encode<__cvt_byte__<xlatWinToMac,
+                            __cvt_byte__<xlatIsoToWin> > >( o, l, (const unsigned char*)s, u );
+            case codepage_866:
+              return encode<__cvt_byte__<xlatWinToMac,
+                            __cvt_byte__<xlatDosToWin> > >( o, l, (const unsigned char*)s, u );
+            case codepage_utf8:
+              return __impl__utf8decode<char, __cvt_byte__<xlatWinToMac,
+                                              __utf_1251__<> > >( o, l, s, u );
+            default:
+              return encode<__cvt_null__>( o, l, (const unsigned char*)s, u );
+          }
+        case codepage_utf8:
+          switch ( srccps )
+          {
+            case codepage_1251:
+            case codepage_1252:
+            case codepage_1254:
+              return __impl__utf8encode<unsigned char, __cvt_char__<xlatWinToUtf16> >( o, l, (const unsigned char*)s, u );
+            case codepage_koi8:
+              return __impl__utf8encode<unsigned char, __cvt_char__<xlatWinToUtf16,
+                                                       __cvt_byte__<xlatKoiToWin> > >( o, l, (const unsigned char*)s, u );
+            case codepage_iso:
+              return __impl__utf8encode<unsigned char, __cvt_char__<xlatWinToUtf16,
+                                                       __cvt_byte__<xlatIsoToWin> > >( o, l, (const unsigned char*)s, u );
+            case codepage_866:
+              return __impl__utf8encode<unsigned char, __cvt_char__<xlatWinToUtf16,
+                                                       __cvt_byte__<xlatDosToWin> > >( o, l, (const unsigned char*)s, u );
+            case codepage_mac:
+              return __impl__utf8encode<unsigned char, __cvt_char__<xlatWinToUtf16,
+                                                       __cvt_byte__<xlatMacToWin> > >( o, l, (const unsigned char*)s, u );
+            default:
+              return encode<__cvt_null__>( o, l, (const unsigned char*)s, u );
+          }
+        default:
+          return (size_t)-1;
+      }
+    }
 
 } // codepages namespace
 
