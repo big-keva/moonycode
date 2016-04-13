@@ -41,35 +41,6 @@ namespace codepages
   extern  const unsigned char   xlatIsoToWin[];
   extern  const unsigned char   xlatMacToWin[];
 
-  // convertor templates
-
-  struct __cvt_null__
-  {
-    static const widechar  translate ( unsigned c )
-      {  return c;  }
-  };
-
-  template <const widechar table[], class __cvt__ = __cvt_null__>
-  struct __cvt_char__
-  {
-    static const widechar translate( unsigned c )
-      {  return table[__cvt__::translate( c )];  }
-  };
-
-  template <const unsigned char table[], class __cvt__ = __cvt_null__>
-  struct __cvt_byte__
-  {
-    static const unsigned char  translate( unsigned c )
-      {  return table[__cvt__::translate( c )];  }
-  };
-
-  template <class __cvt__ = __cvt_null__>
-  struct __utf_1251__
-  {
-    static const widechar translate( unsigned c )
-      {  return xlatUtf16ToWin[__cvt__::translate( c ) >> 8][__cvt__::translate( c ) & 0x00ff];  }
-  };
-
   // utf-8 functions
 
   inline  size_t  utf8cbchar( const char* ptrtop, const char* ptrend )
@@ -110,39 +81,6 @@ namespace codepages
         return 0;
       else ++ptrtop;
     return ptrtop - ptrorg;
-  }
-
-  template <class __cvt__ = __cvt_null__>
-  inline  widechar  utf8decode( const char* ptrtop, size_t chsize )
-  {
-    unsigned  ucchar;
-
-  // on non-utf strings, return -1 as non-utf string error
-    switch ( chsize-- )
-    {
-      case 1:
-        return __cvt__::translate( (unsigned char)*ptrtop );
-      case 2:
-        ucchar = (unsigned)(unsigned char)(*ptrtop++ & 0x1f);
-        break;
-      case 3:
-        ucchar = (unsigned)(unsigned char)(*ptrtop++ & 0x0f);
-        break;
-      case 4:
-        ucchar = (unsigned)(unsigned char)(*ptrtop++ & 0x07);
-        break;
-      case 5:
-        ucchar = (unsigned)(unsigned char)(*ptrtop++ & 0x03);
-        break;
-      case 6:
-        ucchar = (unsigned)(unsigned char)(*ptrtop++ & 0x01);
-        break;
-      default:
-        return (widechar)-1;
-    }
-    while ( chsize-- > 0 )
-      ucchar = (ucchar << 6) | (unsigned char)(*ptrtop++ & 0x3f);
-    return __cvt__::translate( ucchar );
   }
 
   inline  bool  utf8detect( const char* pszstr, size_t  cchstr = (size_t)-1 )
@@ -187,6 +125,68 @@ namespace codepages
     return cchlen;
   }
 
+  // convertor templates
+
+  struct __cvt_null__
+  {
+    static const widechar  translate ( unsigned c )
+      {  return c;  }
+  };
+
+  template <const widechar table[], class __cvt__ = __cvt_null__>
+  struct __cvt_char__
+  {
+    static const widechar translate( unsigned c )
+      {  return table[__cvt__::translate( c )];  }
+  };
+
+  template <const unsigned char table[], class __cvt__ = __cvt_null__>
+  struct __cvt_byte__
+  {
+    static const unsigned char  translate( unsigned c )
+      {  return table[__cvt__::translate( c )];  }
+  };
+
+  template <class __cvt__ = __cvt_null__>
+  struct __utf_1251__
+  {
+    static const widechar translate( unsigned c )
+      {  return xlatUtf16ToWin[__cvt__::translate( c ) >> 8][__cvt__::translate( c ) & 0x00ff];  }
+  };
+
+  template <class __cvt__>
+  inline  widechar  __impl__utf8decode( const char* ptrtop, size_t chsize )
+  {
+    unsigned  ucchar;
+
+  // on non-utf strings, return -1 as non-utf string error
+    switch ( chsize-- )
+    {
+      case 1:
+        return __cvt__::translate( (unsigned char)*ptrtop );
+      case 2:
+        ucchar = (unsigned)(unsigned char)(*ptrtop++ & 0x1f);
+        break;
+      case 3:
+        ucchar = (unsigned)(unsigned char)(*ptrtop++ & 0x0f);
+        break;
+      case 4:
+        ucchar = (unsigned)(unsigned char)(*ptrtop++ & 0x07);
+        break;
+      case 5:
+        ucchar = (unsigned)(unsigned char)(*ptrtop++ & 0x03);
+        break;
+      case 6:
+        ucchar = (unsigned)(unsigned char)(*ptrtop++ & 0x01);
+        break;
+      default:
+        return (widechar)-1;
+    }
+    while ( chsize-- > 0 )
+      ucchar = (ucchar << 6) | (unsigned char)(*ptrtop++ & 0x3f);
+    return __cvt__::translate( ucchar );
+  }
+
   template <class O, class __cvt__>
   inline  size_t  __impl__utf8decode( O* output, size_t  maxlen, const char* pszstr, size_t  cchstr )
   {
@@ -208,7 +208,7 @@ namespace codepages
         ++pszstr;
           continue;
       }
-      if ( (ucchar = utf8decode<__cvt__>( pszstr, nchars )) == (widechar)-1 )
+      if ( (ucchar = __impl__utf8decode<__cvt__>( pszstr, nchars )) == (widechar)-1 )
         continue;
 
       if ( output < outend )
@@ -221,12 +221,11 @@ namespace codepages
     return output - outorg;
   }
 
-  template <class __cvt__ = __cvt_null__>
   inline  size_t  utf8decode( widechar* output, size_t  maxlen, const char* pszstr, size_t  cchstr = (size_t)-1 )
-    {  return __impl__utf8decode<widechar, __cvt__>( output, maxlen, pszstr, cchstr );  }
+    {  return __impl__utf8decode<widechar, __cvt_null__>( output, maxlen, pszstr, cchstr );  }
 
-  template <class __cvt__ = __cvt_null__>
-  inline  size_t  utf8encode( char* output, size_t  cchout, widechar chnext )
+  template <class __cvt__>
+  inline  size_t  __impl__utf8encode( char* output, size_t  cchout, widechar chnext )
   {
     char* outorg = output;
     char* outend = output + cchout;
@@ -273,7 +272,7 @@ namespace codepages
     {
       size_t  cchenc;
 
-      if ( (cchenc = utf8encode<__cvt__>( output, cchout, *pwsstr++ )) <= 0 )  return cchenc;
+      if ( (cchenc = __impl__utf8encode<__cvt__>( output, cchout, *pwsstr++ )) <= 0 )  return cchenc;
         else  output += cchenc;
     }
     if ( output < outend )
@@ -281,9 +280,8 @@ namespace codepages
     return output - outorg;
   }
 
-  template <class __cvt__ = __cvt_null__>
   inline  size_t  utf8encode( char* output, size_t  cchout, const widechar* pwsstr, size_t  cchstr = (size_t)-1 )
-    {  return __impl__utf8encode<widechar, __cvt__>( output, cchout, pwsstr, cchstr );  }
+    {  return __impl__utf8encode<widechar, __cvt_null__>( output, cchout, pwsstr, cchstr );  }
 
   template <class __cvt__, class O, class S>
   inline  size_t  encode( O*  output, size_t  cchout, const S*  source, size_t srclen = (size_t)-1 )
@@ -356,9 +354,9 @@ namespace codepages
 
               if ( (n = utf8cbchar( s, e )) != 0 )
               {
-                c = utf8decode<__cvt_char__<xt> >( s, n );
+                c = __impl__utf8decode<__cvt_char__<xt> >( s, n );
                   s += n - 1;
-                if ( (n = utf8encode( o, l, c )) < 0 )
+                if ( (n = __impl__utf8encode<__cvt_null__>( o, l, c )) < 0 )
                   return n;
                 o += n;
                 l -= n;
