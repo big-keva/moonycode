@@ -258,7 +258,7 @@ namespace codepages
     return output - outorg;
   }
 
-  template <class S, class __cvt__ = __cvt_null__>
+  template <class S, class __cvt__>
   inline  size_t  __impl__utf8encode( char* output, size_t  cchout, const S* pwsstr, size_t  cchstr )
   {
     char*     outorg = output;
