@@ -1,4 +1,4 @@
-libmorph
-Morphologycal analysers/taggers for Russian & Ukrainian
-
-Морфологические анализаторы русского и украинского языков / русская и украинская морфология
+# libcodes
+Cyrillic codepages koi-8, ISO, MAC, DOS (866), Win 1251, Utf-8 && Utf-16 support
+---
+Мини-библиотека поддержки кириллических кодировок koi-8, ISO, MAC, DOS (866), Win 1251, Utf-8 и Utf-16
