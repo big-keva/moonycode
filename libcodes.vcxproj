@@ -19,9 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="chartype.h" />
     <ClInclude Include="codes.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="chartype.cpp" />
     <ClCompile Include="utf16win.cpp" />
     <ClCompile Include="utf16_lo.cpp" />
     <ClCompile Include="utf16_up.cpp" />
@@ -82,22 +84,22 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IntDir>..\tmp\$(Configuration)\$(ProjectName)\</IntDir>
-    <OutDir>..\lib\</OutDir>
+    <IntDir>..\temp\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>..\lib\$(Platform)\</OutDir>
     <TargetName>$(ProjectName)_d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IntDir>..\tmp\$(Configuration)\$(ProjectName)\</IntDir>
-    <OutDir>..\lib\</OutDir>
+    <IntDir>..\temp\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>..\lib\$(Platform)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>..\lib.x64\</OutDir>
-    <IntDir>..\tmp.x64\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>..\lib\$(Platform)\</OutDir>
+    <IntDir>..\temp\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName>$(ProjectName)_d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>..\lib.x64\</OutDir>
-    <IntDir>..\tmp.x64\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>..\lib\$(Platform)\</OutDir>
+    <IntDir>..\temp\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
