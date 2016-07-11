@@ -1,8 +1,33 @@
+/******************************************************************************
+
+    libcodes - codepages conversion library.
+    Copyright (C) 2005-2016 Andrew Kovalenko aka Keva
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+    Contacts:
+      email: keva@meta.ua, keva@rambler.ru
+      Skype: big_keva
+      Phone: +7(495)648-4058, +7(926)513-2991
+
+******************************************************************************/
 # if !defined( __codes_h__ )
 # define  __codes_h__
 # include <limits.h>
-# include <stdint.h>
 # include <string.h>
+# include <stdint.h>
 
 # if !defined( __widechar_defined__ )
 # define  __widechar_defined__
@@ -43,6 +68,16 @@ namespace codepages
 
   // utf-8 functions
 
+  inline  size_t  utf8cbchar( unsigned n )
+  {
+    return  n <= 0x0000007f ? 1 :
+            n <= 0x000007ff ? 2 :
+            n <= 0x0000ffff ? 3 :
+            n <= 0x001fffff ? 4 :
+            n <= 0x03ffffff ? 5 :
+            n <= 0x7fffffff ? 6 : 7;
+  }
+
   inline  size_t  utf8cbchar( const char* ptrtop, const char* ptrend )
   {
     unsigned char chnext;
@@ -77,9 +112,8 @@ namespace codepages
 
   // check least bits
     while ( nleast-- > 0 )
-      if ( (*ptrtop & 0xC0) != 0x80 )
-        return 0;
-      else ++ptrtop;
+      if ( (*ptrtop & 0xC0) != 0x80 ) return 0;
+        else ++ptrtop;
     return ptrtop - ptrorg;
   }
 
