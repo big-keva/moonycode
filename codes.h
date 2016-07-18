@@ -420,7 +420,27 @@ namespace codepages
       return __impl__strtocase__<xlatUtf16Upper>( codepage, o, l, s, u );
     }
 
-  inline  size_t  mbcstowide( unsigned codepage, widechar* o, size_t l, const char* s, size_t u = (size_t)-1 )
+  inline  widechar  chartowide( unsigned codepage, char c )
+    {
+      switch ( codepage )
+      {
+        case codepage_koi8: return __cvt_char__<xlatWinToUtf16,
+                                   __cvt_byte__<xlatKoiToWin> >::translate( (unsigned char)c );
+        case codepage_866:  return __cvt_char__<xlatWinToUtf16,
+                                   __cvt_byte__<xlatDosToWin> >::translate( (unsigned char)c );
+        case codepage_iso:  return __cvt_char__<xlatWinToUtf16,
+                                   __cvt_byte__<xlatIsoToWin> >::translate( (unsigned char)c );
+        case codepage_mac:  return __cvt_char__<xlatWinToUtf16,
+                                   __cvt_byte__<xlatMacToWin> >::translate( (unsigned char)c );
+        case codepage_utf8: return (unsigned char)c;
+        case codepage_1251:
+        case codepage_1252:
+        case codepage_1254: return __cvt_char__<xlatWinToUtf16>::translate( (unsigned char)c );
+        default:            return (widechar)-1;
+      }
+    }
+
+  inline  size_t    mbcstowide( unsigned codepage, widechar* o, size_t l, const char* s, size_t u = (size_t)-1 )
     {
       switch ( codepage )
       {
