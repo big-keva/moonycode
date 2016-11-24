@@ -77,6 +77,8 @@ namespace codepages
   const unsigned char cat_Ps = cat_P + cat_s;
 
   const unsigned char cat_Nd = cat_N + cat_d;
+
+  const unsigned char cat_Sm = cat_S + cat_m;
 }
 
 #endif  // __codepages_chartype_h__
