@@ -78,6 +78,41 @@ namespace codepages
             n <= 0x7fffffff ? 6 : 7;
   }
 
+  inline  size_t  utf8cbchar( const char* thestr )
+  {
+    unsigned char chnext;
+    int           nleast;
+    const char*   ptrorg;
+
+  // check if nothing to scan
+    if ( *(ptrorg = thestr) == '\0' ) 
+      return 0;
+
+  // check if 7-bit character
+    if ( ((chnext = (unsigned char)*thestr++) & 0x80) == 0 )
+      return 1;
+
+  // check the number of bytes in the byte sequence if utf symbol
+    if ( (chnext & 0xe0) == 0xc0 )  nleast = 1;
+      else
+    if ( (chnext & 0xf0) == 0xe0 )  nleast = 2;
+      else
+    if ( (chnext & 0xf8) == 0xf0 )  nleast = 3;
+      else
+    if ( (chnext & 0xfc) == 0xf8 )  nleast = 4;
+      else
+    if ( (chnext & 0xfe) == 0xfc )  nleast = 5;
+      else
+    return 1;
+
+  // check least bits
+    while ( nleast-- > 0 )
+      if ( (*thestr & 0xC0) != 0x80 ) return 0;
+        else ++thestr;
+
+    return thestr - ptrorg;
+  }
+
   inline  size_t  utf8cbchar( const char* ptrtop, const char* ptrend )
   {
     unsigned char chnext;
@@ -245,8 +280,8 @@ namespace codepages
       if ( (ucchar = __impl__utf8decode<__cvt__>( pszstr, nchars )) == (widechar)-1 )
         continue;
 
-      if ( output < outend )
-        *output++ = (O)ucchar;
+      if ( output < outend )  *output++ = (O)ucchar;
+        else return (size_t)-1;
 
       pszstr += nchars;
     }
@@ -255,7 +290,10 @@ namespace codepages
     return output - outorg;
   }
 
-  inline  size_t  utf8decode( widechar* output, size_t  maxlen, const char* pszstr, size_t  cchstr = (size_t)-1 )
+  inline  widechar  utf8dechar( const char* pszstr, size_t cchstr )
+    {  return __impl__utf8decode<__cvt_null__>( pszstr, cchstr );  }
+
+  inline  size_t    utf8decode( widechar* output, size_t  maxlen, const char* pszstr, size_t  cchstr = (size_t)-1 )
     {  return __impl__utf8decode<widechar, __cvt_null__>( output, maxlen, pszstr, cchstr );  }
 
   template <class __cvt__>
