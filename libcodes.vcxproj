@@ -84,22 +84,22 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IntDir>..\temp\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
-    <OutDir>..\lib\$(Platform)\</OutDir>
+    <IntDir>..\tmp.$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>..\lib.$(Platform)\</OutDir>
     <TargetName>$(ProjectName)_d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IntDir>..\temp\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
-    <OutDir>..\lib\$(Platform)\</OutDir>
+    <IntDir>..\tmp.$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>..\lib.$(Platform)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>..\lib\$(Platform)\</OutDir>
-    <IntDir>..\temp\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>..\lib.$(Platform)\</OutDir>
+    <IntDir>..\tmp.$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName>$(ProjectName)_d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>..\lib\$(Platform)\</OutDir>
-    <IntDir>..\temp\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>..\lib.$(Platform)\</OutDir>
+    <IntDir>..\tmp.$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
