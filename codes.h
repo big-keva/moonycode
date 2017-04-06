@@ -376,9 +376,61 @@ namespace codepages
     return srclen;
   }
 
+  template <const widechar xt[]>
+  inline  char  __impl__chartocase__( unsigned codepage, char ch )
+    {
+      switch ( codepage )
+      {
+        case codepage_koi8:
+          return  __cvt_byte__<xlatWinToKoi,
+                  __utf_1251__<
+                  __cvt_char__<xt,
+                  __cvt_char__<xlatWinToUtf16,
+                  __cvt_byte__<xlatKoiToWin> > > > >().translate( (unsigned char)ch );
+        case codepage_866:
+          return  __cvt_byte__<xlatWinToDos,
+                  __utf_1251__<
+                  __cvt_char__<xt,
+                  __cvt_char__<xlatWinToUtf16,
+                  __cvt_byte__<xlatDosToWin> > > > >().translate( (unsigned char)ch );
+        case codepage_iso:
+          return  __cvt_byte__<xlatWinToIso,
+                  __utf_1251__<
+                  __cvt_char__<xt,
+                  __cvt_char__<xlatWinToUtf16,
+                  __cvt_byte__<xlatIsoToWin> > > > >().translate( (unsigned char)ch );
+        case codepage_mac:
+          return  __cvt_byte__<xlatWinToMac,
+                  __utf_1251__<
+                  __cvt_char__<xt,
+                  __cvt_char__<xlatWinToUtf16,
+                  __cvt_byte__<xlatMacToWin> > > > >().translate( (unsigned char)ch );
+        case codepage_utf8:
+          if ( (ch & 0x80) != 0 )
+            return 0;
+        case codepage_1251:
+        case codepage_1252:
+        case codepage_1254:
+        default:
+          return  (char)(unsigned char)
+                  __utf_1251__<
+                  __cvt_char__<xt,
+                  __cvt_char__<xlatWinToUtf16> > >().translate( (unsigned char)ch );
+      }
+    }
+
+  inline  widechar  chartolower( widechar ch )
+    { return __cvt_char__<xlatUtf16Lower>().translate( ch );  }
+  inline  widechar  chartoupper( widechar ch )
+    { return __cvt_char__<xlatUtf16Upper>().translate( ch );  }
+
+  inline  char  chartolower( unsigned codepage, char ch )
+    {  return __impl__chartocase__<xlatUtf16Lower>( codepage, ch );  }
+  inline  char  chartoupper( unsigned codepage, char ch )
+    {  return __impl__chartocase__<xlatUtf16Upper>( codepage, ch );  }
+
   inline  size_t  strtolower( widechar* o, size_t l, const widechar* s, size_t  u = (size_t)-1 )
     {  return encode<__cvt_char__<xlatUtf16Lower> >( o, l, s, u );  }
-
   inline  size_t  strtoupper( widechar* o, size_t l, const widechar* s, size_t  u = (size_t)-1 )
     {  return encode<__cvt_char__<xlatUtf16Upper> >( o, l, s, u );  }
 
@@ -449,14 +501,9 @@ namespace codepages
     }
 
   inline  size_t  strtolower( unsigned codepage, char* o, size_t l, const char* s, size_t u = (size_t)-1 )
-    {
-      return __impl__strtocase__<xlatUtf16Lower>( codepage, o, l, s, u );
-    }
-
+    {  return __impl__strtocase__<xlatUtf16Lower>( codepage, o, l, s, u );  }
   inline  size_t  strtoupper( unsigned codepage, char* o, size_t l, const char* s, size_t u = (size_t)-1 )
-    {
-      return __impl__strtocase__<xlatUtf16Upper>( codepage, o, l, s, u );
-    }
+    {  return __impl__strtocase__<xlatUtf16Upper>( codepage, o, l, s, u );  }
 
   inline  widechar  chartowide( unsigned codepage, char c )
     {
@@ -502,6 +549,12 @@ namespace codepages
         default:
           return encode<__cvt_char__<xlatWinToUtf16> >( o, l, (const unsigned char*)s, u );
       }
+    }
+
+  template <unsigned codepage, size_t N>
+  inline  size_t  mbcstowide( widechar (&o)[N], const char* s, size_t l = (size_t)-1 )
+    {
+      return mbcstowide( codepage, o, N, s, l );
     }
 
   inline  size_t  widetombcs( unsigned codepage, char* o, size_t l, const widechar* s, size_t u = (size_t)-1 )
