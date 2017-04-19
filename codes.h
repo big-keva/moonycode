@@ -307,20 +307,20 @@ namespace codepages
     if ( (chnext & ~0x007f) == 0 )
     {
       if ( output < outend )  *output++ = (char)(unsigned char)chnext;
-        else return -1;
+        else return (size_t)-1;
     }
       else
     if ( (chnext & ~0x07ff) == 0 )
     {
       if ( output >= outend - 1 )
-        return -1;
+        return (size_t)-1;
       *output++ = (char)(0xC0 | (unsigned char)(chnext >> 6));
       *output++ = (char)(0x80 | (unsigned char)(chnext & 0x3f));
     }
       else
     {
       if ( output >= outend - 2 )
-        return -1;
+        return (size_t)-1;
       *output++ = (char)(0xE0 | (unsigned char)(chnext >> 12));
       *output++ = (char)(0x80 | (unsigned char)((chnext >> 6) & 0x3F));
       *output++ = (char)(0x80 | (unsigned char)(chnext & 0x3F));
@@ -480,7 +480,7 @@ namespace codepages
               {
                 c = __impl__utf8decode<__cvt_char__<xt> >( s, n );
                   s += n - 1;
-                if ( (n = __impl__utf8encode<__cvt_null__>( o, l, c )) < 0 )
+                if ( (n = __impl__utf8encode<__cvt_null__>( o, l, c )) == (size_t)-1 )
                   return n;
                 o += n;
                 l -= n;
