@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 project(codepages)
 
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 add_compile_options(-W -Wall -Wextra)
 
 add_library(codes STATIC
