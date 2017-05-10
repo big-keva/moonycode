@@ -1,9 +1,21 @@
-cmake_minimum_required(VERSION 2.8)
-
+cmake_minimum_required(VERSION 3.5)
 project(codepages)
 
-add_definitions( -Wall -std=c++1y -pedantic )
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
+if(MSVC)
+  add_compile_options(-MP)
+else()
+  add_compile_options(-W -Wall -Wextra)
+endif()
 
-set(SOURCE_LIB chartype.cpp  utf16_lo.cpp  utf16_up.cpp  utf16win.cpp  win_dos.cpp  win_iso.cpp  win_koi.cpp  win_mac.cpp)
-
-add_library(codes STATIC ${SOURCE_LIB})
+add_library(codes STATIC
+  chartype.cpp
+  utf16_lo.cpp
+  utf16_up.cpp
+  utf16win.cpp
+  win_dos.cpp
+  win_iso.cpp
+  win_koi.cpp
+  win_mac.cpp
+)
