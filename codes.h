@@ -198,28 +198,28 @@ namespace codepages
 
   struct __cvt_null__
   {
-    static const widechar  translate ( unsigned c )
+    static widechar  translate ( unsigned c )
       {  return c;  }
   };
 
   template <const widechar table[], class __cvt__ = __cvt_null__>
   struct __cvt_char__
   {
-    static const widechar translate( unsigned c )
+    static widechar translate( unsigned c )
       {  return table[__cvt__::translate( c )];  }
   };
 
   template <const unsigned char table[], class __cvt__ = __cvt_null__>
   struct __cvt_byte__
   {
-    static const unsigned char  translate( unsigned c )
+    static unsigned char  translate( unsigned c )
       {  return table[__cvt__::translate( c )];  }
   };
 
   template <class __cvt__ = __cvt_null__>
   struct __utf_1251__
   {
-    static const widechar translate( unsigned c )
+    static widechar translate( unsigned c )
       {  return xlatUtf16ToWin[__cvt__::translate( c ) >> 8][__cvt__::translate( c ) & 0x00ff];  }
   };
 
