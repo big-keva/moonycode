@@ -231,6 +231,8 @@ namespace codepages
   // on non-utf strings, return -1 as non-utf string error
     switch ( chsize-- )
     {
+      case 0:
+        return (widechar)0;
       case 1:
         return __cvt__::translate( (unsigned char)*ptrtop );
       case 2:
