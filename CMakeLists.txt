@@ -9,7 +9,7 @@ else()
   add_compile_options(-W -Wall -Wextra)
 endif()
 
-add_library(big_keva_codes STATIC
+add_library(tiny_codepages STATIC
   chartype.cpp
   utf16_lo.cpp
   utf16_up.cpp
@@ -19,4 +19,4 @@ add_library(big_keva_codes STATIC
   win_koi.cpp
   win_mac.cpp
 )
-install(TARGETS big_keva_codes DESTINATION lib)
+install(TARGETS tiny_codepages DESTINATION lib)
