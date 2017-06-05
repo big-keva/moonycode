@@ -29,3 +29,5 @@
 
 *.vcxproj.user
 *.sdf
+
+libcodes.vcxproj.filters
