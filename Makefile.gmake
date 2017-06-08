@@ -13,4 +13,3 @@ $(OBJDIR)%.o: %.cpp
 
 $(OBJDIR):
 	@mkdir -p $@
-

@@ -31,3 +31,6 @@
 *.sdf
 
 libcodes.vcxproj.filters
+
+build
+.vscode
