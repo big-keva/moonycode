@@ -27,4 +27,4 @@ install(FILES
 )
 
 add_subdirectory(test)
-#add_subdirectory(umap)
+add_subdirectory(umap)
