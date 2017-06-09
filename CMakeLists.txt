@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.2)
-project(tiny_codepages)
+cmake_minimum_required(VERSION 3.5)
+project(codepages)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 14)
@@ -20,11 +20,3 @@ add_library(tiny_codepages STATIC
   win_mac.cpp
 )
 install(TARGETS tiny_codepages DESTINATION lib)
-install(FILES
-  chartype.h
-  codes.h
-  DESTINATION include/libcodes
-)
-
-add_subdirectory(test)
-add_subdirectory(umap)
