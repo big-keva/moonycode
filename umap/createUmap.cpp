@@ -47,7 +47,7 @@ int   LoadCharType( FILE* source )
       continue;
 
   // get interval
-    if ( (uupper = ulower = strtoul( strtop, &strend, 0x10 )) == 0 )
+    if ( (uupper = ulower = strtoul( strtop, &strend, 0x10 )) == 0 && strend - strtop != 4 )
       continue;
     if ( *(strtop = strend) == '.' )
     {
