@@ -20,3 +20,9 @@ add_library(tiny_codepages STATIC
   win_mac.cpp
 )
 install(TARGETS tiny_codepages DESTINATION lib)
+install(
+  FILES
+    chartype.h
+    codes.h
+  DESTINATION include/libcodes
+)
