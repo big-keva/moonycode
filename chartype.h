@@ -105,6 +105,36 @@ namespace codepages
   const unsigned char cat_Nd = cat_N + cat_d;
 
   const unsigned char cat_Sm = cat_S + cat_m;
+
+  class __impl_is_category_last__
+    {
+      public: bool  operator () ( unsigned char c ) const  {  (void)c;  return false;  }
+    };
+
+  template <unsigned uvalue, class acnext = __impl_is_category_last__>
+  class is_category
+    {
+      public: bool  operator ()( unsigned char c ) const  {  return c == uvalue || acnext()( c );  }
+    };
+
+  inline  bool  IsSpace( widechar c )
+    {
+      return is_category<codepages::cat_Cc,
+             is_category<codepages::cat_Zs,
+             is_category<codepages::cat_Zl,
+             is_category<codepages::cat_Zp>>>>()( codepages::charType[c] );
+    }
+
+  inline  bool  IsEmpty( widechar c )
+    {
+      return is_category<codepages::cat_Cf>()( codepages::charType[c] );
+    }
+
+  inline  bool  IsBlank( widechar c )
+    {
+      return IsSpace( c ) || IsEmpty( c );
+    }
+
 }
 
 #endif  // __codepages_chartype_h__
