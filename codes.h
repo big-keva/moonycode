@@ -104,54 +104,26 @@ namespace codepages
             n <= 0x7fffffff ? 6 : 7;
   }
 
-  inline  size_t  utf8cbchar( const char* thestr )
+  inline  size_t  utf8cbchar( const char* ptrtop, const char* ptrend = nullptr )
   {
     unsigned char chnext;
     int           nleast;
     const char*   ptrorg;
 
-  // check if nothing to scan
-    if ( *(ptrorg = thestr) == '\0' ) 
+  // check for length
+    if ( ptrtop == nullptr )
       return 0;
 
-  // check if 7-bit character
-    if ( ((chnext = (unsigned char)*thestr++) & 0x80) == 0 )
-      return 1;
-
-  // check the number of bytes in the byte sequence if utf symbol
-    if ( (chnext & 0xe0) == 0xc0 )  nleast = 1;
-      else
-    if ( (chnext & 0xf0) == 0xe0 )  nleast = 2;
-      else
-    if ( (chnext & 0xf8) == 0xf0 )  nleast = 3;
-      else
-    if ( (chnext & 0xfc) == 0xf8 )  nleast = 4;
-      else
-    if ( (chnext & 0xfe) == 0xfc )  nleast = 5;
-      else
-    return 1;
-
-  // check least bits
-    while ( nleast-- > 0 )
-      if ( (*thestr & 0xC0) != 0x80 ) return 0;
-        else ++thestr;
-
-    return thestr - ptrorg;
-  }
-
-  inline  size_t  utf8cbchar( const char* ptrtop, const char* ptrend )
-  {
-    unsigned char chnext;
-    int           nleast;
-    const char*   ptrorg;
+    if ( ptrend == nullptr )
+      for ( ptrend = ptrtop; *ptrend != '\0'; ++ptrend )
+        (void)NULL;
 
   // check if nothing to scan
     if ( (ptrorg = ptrtop) >= ptrend )
       return 0;
-    else chnext = (unsigned char)*ptrtop++;
 
   // check if 7-bit character
-    if ( (chnext & 0x80) == 0 )
+    if ( ((chnext = (unsigned char)*ptrtop++) & 0x80) == 0 )
       return 1;
 
   // check the number of bytes in the byte sequence if utf symbol
@@ -175,6 +147,7 @@ namespace codepages
     while ( nleast-- > 0 )
       if ( (*ptrtop & 0xC0) != 0x80 ) return 0;
         else ++ptrtop;
+
     return ptrtop - ptrorg;
   }
 
