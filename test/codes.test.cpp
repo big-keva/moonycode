@@ -105,6 +105,26 @@ int   _error( int code, const char* msg, ... )
   return code;
 }
 
+int   TestUTF8()
+{
+  widechar  long_utf16[] = { 0xd83c, 0xdf78, 0xd83c, 0xdf78, 0xd83c, 0xdf78, '5',
+                             0x0438, 0x043d, 0x0442, 0x0435, 0x0440, 0x044c, 0x0435,
+                             0x0440, 0x043e, 0x0432, ' ',    0x0441, ' ',    0x041a,
+                             0x0420, 0x0415, 0x0421, 0x041b, 0x041e, 0x041c, 0 };
+  char      plain_utf8[0x400];
+  widechar  conv_utf16[0x100];
+
+  codepages::widetombcs( codepages::codepage_utf8, plain_utf8, sizeof(plain_utf8), long_utf16 );
+  codepages::mbcstowide( codepages::codepage_utf8, conv_utf16, sizeof(conv_utf16) / sizeof(widechar), plain_utf8 );
+
+  if ( w_strcmp( long_utf16, conv_utf16 ) != 0 )
+    return _error( EINVAL, "invalid forward-backward utf16-utf8-utf16 conversion" );
+    
+  codepages::widetombcs( codepages::codepage_1251, plain_utf8, sizeof(plain_utf8), long_utf16 );
+
+  return 0;
+}
+
 int   main()
 {
   widechar* wcsstr;
@@ -120,6 +140,10 @@ int   main()
   size_t    cchwcs;
   size_t    cchtmp;
   size_t    cchres;
+  int       nerror;
+
+  if ( (nerror = TestUTF8()) != 0 )
+    return nerror;
 
   struct
   {
