@@ -406,7 +406,9 @@ namespace codepages
           return 0;
         if ( *s < 0xd800 || *s > 0xdfff || s >= e - 1 )
           return *s++;
-        return one( *s++ ) + two( *s++ );
+        auto hi = one( *s++ );
+        auto lo = two( *s++ );
+          return hi + lo;
       }
 
     }
