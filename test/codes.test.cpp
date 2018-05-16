@@ -28,6 +28,7 @@
 # include <stdlib.h>
 # include <stdarg.h>
 # include <stdio.h>
+# include <errno.h>
 
 using namespace codepages;
 
