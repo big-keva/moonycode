@@ -12,3 +12,5 @@ endif()
 add_executable(test-codepages
   codes.test.cpp
 )
+
+target_link_libraries(test-codepages tiny_codepages)
