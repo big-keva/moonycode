@@ -48,18 +48,21 @@ using namespace codepages;
   size_t    widetombcs( unsigned codepage, char* o, size_t l, const widechar* s, size_t u = (size_t)-1 )
 */
 
+template <class T, size_t N>
+constexpr inline size_t array_size( T (&)[N] ) {  return N;  }
+
 template <class C>
 C*  GetContent( const char* szname )
 {
-  FILE* lpfile;
-  long  fisize;
-  C*    loaded;
+  FILE*   lpfile;
+  size_t  fisize;
+  C*      loaded;
 
   if ( (lpfile = fopen( szname, "rb" )) == NULL )
     return NULL;
 
   fseek( lpfile, 0, SEEK_END );
-    fisize = ftell( lpfile );
+    fisize = (size_t)ftell( lpfile );
   fseek( lpfile, 0, SEEK_SET );
 
   if ( (loaded = (C*)malloc( fisize + sizeof(C) )) == NULL )
@@ -272,8 +275,8 @@ int   main()
     return _error( EINVAL, "mbcstowide: 866 codepage error!" );
 
 // codepage transformations
-  for ( int i = 0; i < sizeof(codepageList) / sizeof(codepageList[0]); ++i )
-    for ( int j = 0; j < sizeof(codepageList) / sizeof(codepageList[0]); ++j )
+  for ( size_t i = 0; i < array_size(codepageList); ++i )
+    for ( size_t j = 0; j < array_size(codepageList); ++j )
     {
       if ( (cchres = mbcstombcs( codepageList[i].pageid, tmpbuf, cchtmp, codepageList[j].pageid, codepageList[j].thestr )) == (size_t)-1 )
         return _error( EINVAL, "mbcstombcs: length error!" );
