@@ -9,6 +9,8 @@ else()
   add_compile_options(-W -Wall -Wextra)
 endif()
 
+add_subdirectory(test)
+
 add_library(tiny_codepages STATIC
   chartype.cpp
   utf16_lo.cpp
