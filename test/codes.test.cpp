@@ -178,14 +178,14 @@ int   main()
     return ENOMEM;
 
 // check utf16->utf8 in different modes
-  if ( (cchres = utf8encode( tmpbuf, cchtmp, wcsstr, cchwcs )) != w_strlen( utfstr ) )
+  if ( (cchres = utf8::encode( tmpbuf, cchtmp, wcsstr, cchwcs )) != w_strlen( utfstr ) )
     return _error( EINVAL, "utf8encode: invalid return code!" );
   if ( tmpbuf[cchres] != 0 )
     return _error( EINVAL, "utf8encode: no final zero!" );
   if ( strcmp( tmpbuf, utfstr ) != 0 )
     return _error( EINVAL, "utf8encode: strcmp do not match!" );
 
-  if ( (cchres = utf8encode( tmpbuf, cchtmp, wcsstr )) != w_strlen( utfstr ) )
+  if ( (cchres = utf8::encode( tmpbuf, cchtmp, wcsstr )) != w_strlen( utfstr ) )
     return _error( EINVAL, "utf8encode: invalid return code!" );
   if ( tmpbuf[cchres] != 0 )
     return _error( EINVAL, "utf8encode: no final zero!" );
@@ -193,11 +193,11 @@ int   main()
     return _error( EINVAL, "utf8encode: strcmp do not match!" );
 
 // check utf8strlen
-  if ( utf8strlen( utfstr ) != w_strlen( wcsstr ) )
+  if ( utf8::strlen( utfstr ) != w_strlen( wcsstr ) )
     return _error( EINVAL, "utf8strlen: string lengths do not match!" );
 
 // check utf8->utf16
-  if ( (cchres = utf8decode( (widechar*)tmpbuf, cchtmp / sizeof(widechar), utfstr )) != cchwcs )
+  if ( (cchres = utf8::decode( (widechar*)tmpbuf, cchtmp / sizeof(widechar), utfstr )) != cchwcs )
     return _error( EINVAL, "utf8decode: invalid return code!" );
   if ( ((widechar*)tmpbuf)[cchres] != 0 )
     return _error( EINVAL, "utf8decode: no final zero!" );
