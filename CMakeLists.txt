@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.5)
-project(codepages)
+project(moonycode)
 
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 11)
 if(MSVC)
   add_compile_options(-MP)
 else()
@@ -11,7 +11,7 @@ endif()
 
 add_subdirectory(test)
 
-add_library(tiny_codepages STATIC
+add_library(moonycode STATIC
   chartype.cpp
   utf16_lo.cpp
   utf16_up.cpp
@@ -21,10 +21,10 @@ add_library(tiny_codepages STATIC
   win_koi.cpp
   win_mac.cpp
 )
-install(TARGETS tiny_codepages DESTINATION lib)
+install(TARGETS moonycode DESTINATION lib)
 install(
   FILES
     chartype.h
     codes.h
-  DESTINATION include/libcodes
+  DESTINATION include/moonycode
 )
