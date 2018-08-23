@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libcodes", "libcodes.vcxproj", "{A94FABAE-AE15-4B92-8197-4AFB28B9BBCC}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "moonycode", "moonycode.vcxproj", "{A94FABAE-AE15-4B92-8197-4AFB28B9BBCC}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "codes.test", "test\codes.test.vcxproj", "{9961C1A1-0F4C-49C6-8510-B6412629B486}"
 EndProject
