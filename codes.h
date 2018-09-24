@@ -67,6 +67,7 @@ SOFTWARE.
 
 namespace codepages
 {
+  using charstring = std::string;
   using widestring = std::basic_string<widechar>;
 
 /* private codepage identifiers */
@@ -914,7 +915,7 @@ namespace codepages
 
   // std::string wrappers
 
-  inline  std::string widetombcs( unsigned codepage, const widechar* s, size_t l = (size_t)-1 )
+  inline  charstring  widetombcs( unsigned target_cp, const widechar* s, size_t l = (size_t)-1 )
     {
       std::string st;
       size_t      cc;
@@ -924,19 +925,12 @@ namespace codepages
       if ( l == (size_t)-1 )
         for ( l = 0; s[l] != 0; ++l ) (void)NULL;
 
-      st.assign( cc = (codepage == codepage_utf8 ? l * 4 : l) + 1, 0 );
-        st.resize( widetombcs( codepage, (char*)st.c_str(), cc, s, l ) );
-      return st;
+      st.assign( cc = (target_cp == codepage_utf8 ? l * 6 : l) + 1, 0 );
+        st.resize( widetombcs( target_cp, (char*)st.c_str(), cc, s, l ) );
+      return std::move( st );
     }
 
-  inline  std::string widetombcs( unsigned codepage, const widestring& s, size_t l = (size_t)-1 )
-    {  return widetombcs( codepage, s.c_str(), l );  }
-
-  template <unsigned codepage, class source>
-  inline  std::string widetombcs( source s, size_t l = (size_t)-1 )
-    {  return widetombcs( codepage, s, l );  }
-
-  inline  widestring  mbcstowide( unsigned codepage, const char* s, size_t l = (size_t)-1 )
+  inline  widestring  mbcstowide( unsigned source_cp, const char* s, size_t l = (size_t)-1 )
     {
       widestring  ws;
       size_t      cc;
@@ -946,17 +940,26 @@ namespace codepages
       if ( l == (size_t)-1 )
         for ( l = 0; s[l] != 0; ++l ) (void)NULL;
 
-      ws.assign( cc = (codepage == codepage_utf8 ? utf8::strlen( s, l ) : l) + 1, 0 );
-        ws.resize( mbcstowide( codepage, (widechar*)ws.c_str(), cc, s, l ) );
+      ws.assign( cc = (source_cp == codepage_utf8 ? utf8::strlen( s, l ) : l) + 1, 0 );
+        ws.resize( mbcstowide( source_cp, (widechar*)ws.c_str(), cc, s, l ) );
       return ws;
     }
 
-  inline  widestring  mbcstowide( unsigned codepage, const std::string& s, size_t l = (size_t)-1 )
-    {  return mbcstowide( codepage, s.c_str(), l );  }
+  inline  charstring  mbcstombcs( unsigned target_cp, unsigned source_cp, const char* s, size_t l = (size_t)-1 )
+    {
+      std::string cs;
+      size_t      cc;
 
-  template <unsigned codepage, class source>
-  inline  widestring  mbcstowide( source s, size_t l = (size_t)-1 )
-    {  return mbcstowide( codepage, s, l );  }
+      if ( l == (size_t)-1 )
+        for ( l = 0; s[l] != 0; ++l ) (void)NULL;
+
+      if ( target_cp == source_cp )
+        return std::string( s, l );
+
+      cs.assign( cc = (target_cp == codepages::codepage_utf8 ? l * 6 : l) + 1, 0 );
+        cs.resize( mbcstombcs( target_cp, (char*)cs.c_str(), cc, source_cp, s, l ) );
+      return std::move( cs );
+    }
 
 } // codepages namespace
 
