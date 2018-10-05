@@ -961,6 +961,13 @@ namespace codepages
       return std::move( cs );
     }
 
+  inline  charstring  widetombcs( unsigned target_cp, const widestring& s )
+    {  return widetombcs( target_cp, s.c_str(), s.length() );  }
+  inline  widestring  mbcstowide( unsigned source_cp, const charstring& s )
+    {  return mbcstowide( source_cp, s.c_str(), s.length() );  }
+  inline  charstring  mbcstombcs( unsigned target_cp, unsigned source_cp, const charstring& s )
+    {  return mbcstombcs( target_cp, source_cp, s.c_str(), s.length() );  }
+
 } // codepages namespace
 
 # endif  // __codes_h__
