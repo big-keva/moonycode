@@ -657,6 +657,26 @@ namespace codepages
   inline  size_t  strtoupper( unsigned codepage, char* o, size_t l, const char* s, size_t u = (size_t)-1 )
     {  return __impl__::strtocase<xlatUtf16Upper>( codepage, o, l, s, u );  }
 
+  inline  widestring  strtolower( const widestring& s )
+    {
+      widestring  out( s );
+
+      __impl__::utf::recodetext<__impl__::cvt_wide<xlatUtf16Lower> >( (widechar*)out.c_str(), out.length(),
+        s.c_str(), s.length() );
+
+      return std::move( out );
+    }
+
+  inline  widestring  strtoupper( const widestring& s )
+    {
+      widestring  out( s );
+
+      __impl__::utf::recodetext<__impl__::cvt_wide<xlatUtf16Upper> >( (widechar*)out.c_str(), out.length(),
+        s.c_str(), s.length() );
+
+      return std::move( out );
+    }
+
   inline  widechar  chartowide( unsigned codepage, char c )
     {
       switch ( codepage )
