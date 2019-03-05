@@ -659,7 +659,7 @@ namespace codepages
 
   inline  widestring  strtolower( const widestring& s )
     {
-      widestring  out( s );
+      widestring  out( s.c_str(), s.length() );
 
       __impl__::utf::recodetext<__impl__::cvt_wide<xlatUtf16Lower> >( (widechar*)out.c_str(), out.length(),
         s.c_str(), s.length() );
