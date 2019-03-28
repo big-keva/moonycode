@@ -111,6 +111,12 @@ namespace codepages
     inline  size_t  cbchar( uint32_t n );
 
     /*
+      cbchar( const widechar* wcs, size_t len )
+      Возвращает количество байт, кодирующих строку
+    */
+    inline  size_t  cbchar( const widechar* wcs, size_t len );
+
+    /*
       cbchar( utfstr )
       Возвращает количество байт, кодирующих первый символ строки.
     */
@@ -381,20 +387,18 @@ namespace codepages
       {
         const S*  srcend;
         O*        outend;
+        O*        outorg;
 
         if ( srclen == (size_t)-1 )
           for ( srclen = 0; source[srclen] != 0; ++srclen ) (void)NULL;
 
-        if ( srclen > cchout )
-          return (size_t)-1;
- 
-        for ( outend = output + cchout, srcend = source + srclen; source < srcend; )
+        for ( outend = (outorg = output) + cchout, srcend = source + srclen; source < srcend && output != outend; )
           *output++ = (O)__cvt__::translate( character::get( source, srcend ) );
+            
+        if ( output != outend ) *output = 0;
+          else return (size_t)-1;
 
-        if ( output < outend )
-          *output = 0;
-
-        return srclen;
+        return output - outorg;
       }
 
     }   // end utf8 namespace
@@ -585,6 +589,27 @@ namespace codepages
           else ++pszstr;
 
       return pszstr - pszorg;
+    }
+
+    inline  size_t  cbchar( const widechar* pwsstr, size_t  cchstr )
+    {
+      const widechar* pwsend;
+      size_t          length;
+
+    // check for length
+      if ( pwsstr == nullptr )
+        return 0;
+
+      if ( cchstr == (size_t)-1 )
+        for ( auto pwsorg = pwsend = pwsstr; *pwsend != 0; ++pwsend )  (void)NULL;
+      else
+        pwsend = pwsstr + cchstr;
+
+    // get string character by character
+      for ( length = 0; pwsstr != pwsend; )
+        length += cbchar( __impl__::utf::character::get( pwsstr, pwsend ) );
+      
+      return length;
     }
 
     inline  bool  detect( const char* pszstr, size_t  cchstr )
