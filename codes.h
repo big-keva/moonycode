@@ -601,7 +601,7 @@ namespace codepages
         return 0;
 
       if ( cchstr == (size_t)-1 )
-        for ( auto pwsorg = pwsend = pwsstr; *pwsend != 0; ++pwsend )  (void)NULL;
+        for ( pwsend = pwsstr; *pwsend != 0; ++pwsend )  (void)NULL;
       else
         pwsend = pwsstr + cchstr;
 
