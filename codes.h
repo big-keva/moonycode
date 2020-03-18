@@ -689,7 +689,7 @@ namespace codepages
       __impl__::utf::recodetext<__impl__::cvt_wide<xlatUtf16Lower> >( (widechar*)out.c_str(), out.length(),
         s.c_str(), s.length() );
 
-      return std::move( out );
+      return out;
     }
 
   inline  widestring  strtoupper( const widestring& s )
@@ -699,7 +699,7 @@ namespace codepages
       __impl__::utf::recodetext<__impl__::cvt_wide<xlatUtf16Upper> >( (widechar*)out.c_str(), out.length(),
         s.c_str(), s.length() );
 
-      return std::move( out );
+      return out;
     }
 
   inline  widechar  chartowide( unsigned codepage, char c )
@@ -972,7 +972,7 @@ namespace codepages
 
       st.assign( cc = (target_cp == codepage_utf8 ? l * 6 : l) + 1, 0 );
         st.resize( widetombcs( target_cp, (char*)st.c_str(), cc, s, l ) );
-      return std::move( st );
+      return st;
     }
 
   inline  widestring  mbcstowide( unsigned source_cp, const char* s, size_t l = (size_t)-1 )
@@ -1003,7 +1003,7 @@ namespace codepages
 
       cs.assign( cc = (target_cp == codepages::codepage_utf8 ? l * 6 : l) + 1, 0 );
         cs.resize( mbcstombcs( target_cp, (char*)cs.c_str(), cc, source_cp, s, l ) );
-      return std::move( cs );
+      return cs;
     }
 
   inline  charstring  widetombcs( unsigned target_cp, const widestring& s )
