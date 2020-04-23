@@ -372,7 +372,7 @@ namespace codepages
         {
           size_t  cchenc;
 
-          if ( (cchenc = encodechar<__cvt__>( output, cchout, character::get( pwsstr, pwsend ) )) != (size_t)-1 )  output += cchenc;
+          if ( (cchenc = encodechar<__cvt__>( output, outend - output, character::get( pwsstr, pwsend ) )) != (size_t)-1 )  output += cchenc;
             else return cchenc;
         }
 
