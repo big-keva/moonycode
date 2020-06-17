@@ -1,4 +1,4 @@
-# libcodes
+# moonycode
 
 Cyrillic codepages koi-8, ISO, MAC, DOS (866), Win 1251, Utf-8 && Utf-16 support
 
