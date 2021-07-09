@@ -148,28 +148,28 @@ namespace codepages
 
     struct cvt_null
     {
-      static uint32_t translate ( uint32_t c )
+      static  uint32_t  translate( uint32_t c )
         {  return c;  }
     };
 
     template <const widechar table[], class __cvt__ = cvt_null>
     struct cvt_wide
     {
-      static widechar translate( uint32_t c )
-        {  return c <= 0xffff ? table[__cvt__::translate( c )] : '?';  }
+      static  uint32_t  translate( uint32_t c )
+        {  return c <= 0xffff ? table[__cvt__::translate( c )] : c;  }
     };
 
     template <const uint8_t table[], class __cvt__ = cvt_null>
     struct cvt_byte
     {
-      static uint8_t  translate( uint32_t c )
-        {  return table[__cvt__::translate( c )];  }
+      static  uint32_t  translate( uint32_t c )
+        {  return c <= 0xff ? table[__cvt__::translate( c )] : c;  }
     };
 
     template <class __cvt__ = cvt_null>
     struct utf_1251
     {
-      static uint8_t  translate( uint32_t c )
+      static  uint32_t  translate( uint32_t c )
         {
           auto  conv_c = __cvt__::translate( c );
         
@@ -221,6 +221,11 @@ namespace codepages
         inline  size_t    store_21( widechar* o, size_t l, uint32_t u )
           {
             return l > 1 ? (*o++ = upper_16( u ), *o = lower_16( u ), 2) : (size_t)-1;
+          }
+
+        inline  size_t    put( uint32_t* o, size_t l, uint32_t u )
+          {
+            return l > 0 ? (*o = u), 1 : (size_t)-1;
           }
 
         inline  size_t    put( widechar* o, size_t l, uint32_t u )
@@ -392,13 +397,10 @@ namespace codepages
         if ( srclen == (size_t)-1 )
           for ( srclen = 0; source[srclen] != 0; ++srclen ) (void)NULL;
 
-        for ( outend = (outorg = output) + cchout, srcend = source + srclen; source < srcend && output != outend; )
-          *output++ = (O)__cvt__::translate( character::get( source, srcend ) );
-            
-        if ( output != outend ) *output = 0;
-          else return (size_t)-1;
+        for ( outend = (outorg = output) + cchout, srcend = source + srclen; source < srcend && output < outend; )
+          output += utf::character::put( output, outend - output, __cvt__::translate( character::get( source, srcend ) ) );
 
-        return output - outorg;
+        return output < outend ? (*output = 0), output - outorg : (size_t)-1;
       }
 
     }   // end utf8 namespace
