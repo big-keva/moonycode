@@ -987,7 +987,7 @@ namespace codepages
       if ( l == (size_t)-1 )
         for ( l = 0; s[l] != 0; ++l ) (void)NULL;
 
-      ws.assign( cc = (source_cp == codepage_utf8 ? utf8::strlen( s, l ) : l) + 1, 0 );
+      ws.assign( cc = (source_cp == codepage_utf8 ? utf8::wcslen( s, l ) : l) + 1, 0 );
         ws.resize( mbcstowide( source_cp, (widechar*)ws.c_str(), cc, s, l ) );
       return ws;
     }
