@@ -208,6 +208,15 @@ namespace codepages
               return ucl + uch;
           }
 
+        template <class S>
+        inline  size_t  len( S s, S e ) {  return s < e ? 1 : 0;  }
+        inline  size_t  len( const widechar* s, const widechar* e )
+          {
+            if ( s >= e )
+              return 0;
+            return *s < 0xd800 || *s > 0xdfff || s >= e - 1 ? 1 : 2;
+          }
+
       // put characters to output string
 
         inline  uint16_t  upper_16( uint32_t u )  {  return 0xd800 | ((u - 0x10000) >> 10);  }
@@ -398,7 +407,13 @@ namespace codepages
           for ( srclen = 0; source[srclen] != 0; ++srclen ) (void)NULL;
 
         for ( outend = (outorg = output) + cchout, srcend = source + srclen; source < srcend && output < outend; )
-          output += utf::character::put( output, outend - output, __cvt__::translate( character::get( source, srcend ) ) );
+        {
+          auto  ucnext = character::get( source, srcend );
+          auto  cchadd = utf::character::put( output, outend - output, __cvt__::translate( ucnext ) );
+
+          if ( cchadd != (size_t)-1 ) output += cchadd;
+            else return (size_t)-1;
+        }
 
         return output < outend ? (*output = 0), output - outorg : (size_t)-1;
       }
