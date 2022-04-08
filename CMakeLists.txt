@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.1)
 project(moonycode)
 
 set(CMAKE_C_STANDARD 11)
