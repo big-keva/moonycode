@@ -1,0 +1,18 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+
+cc_library(
+    name = "moonycode",
+    srcs = [
+	"chartype.cpp",
+	"utf16_lo.cpp",
+	"utf16_up.cpp",
+	"utf16win.cpp",
+	"win_dos.cpp",
+	"win_iso.cpp",
+	"win_koi.cpp",
+	"win_mac.cpp"],
+    hdrs = [
+	"chartype.h",
+	"codes.h"],
+    visibility = ["//visibility:public"],
+)
