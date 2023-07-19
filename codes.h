@@ -163,7 +163,7 @@ namespace codepages
     struct cvt_byte
     {
       static  uint32_t  translate( uint32_t c )
-        {  return c <= 0xff ? table[__cvt__::translate( c )] : c;  }
+        {  return (c = __cvt__::translate( c )) <= 0xff ? table[c] : c;  }
     };
 
     template <class __cvt__ = cvt_null>
@@ -845,7 +845,8 @@ namespace codepages
             case codepage_1251:
             case codepage_1252:
             case codepage_1254:
-              return __impl__::utf::recodetext<__impl__::cvt_byte<xlatWinToKoi> >( o, l, (const unsigned char*)s, u );
+              return __impl__::utf::recodetext<
+                __impl__::cvt_byte<xlatWinToKoi> >( o, l, (const unsigned char*)s, u );
             case codepage_866:
               return __impl__::utf::recodetext<
                 __impl__::cvt_byte<xlatWinToKoi,
