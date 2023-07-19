@@ -49,7 +49,7 @@ SOFTWARE.
 С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ.
 
 ******************************************************************************/
-# include "codes.h"
+# include "moonycode/codes.h"
 
 namespace codepages
 {
