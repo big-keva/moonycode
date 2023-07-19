@@ -87,6 +87,8 @@ namespace codepages
   extern  const widechar        xlatUtf16Lower[];
   extern  const widechar        xlatUtf16Upper[];
 
+  extern  const unsigned char   xlatOneToOne[];
+
   extern  const unsigned char   xlatWinToKoi[];
   extern  const unsigned char   xlatWinToDos[];
   extern  const unsigned char   xlatWinToIso[];
@@ -96,47 +98,44 @@ namespace codepages
   extern  const unsigned char   xlatIsoToWin[];
   extern  const unsigned char   xlatMacToWin[];
 
-  /*
-
-    utf8 - работа с utf8-строками
-
+ /*
+  * utf8 - примитивы
   */
   namespace utf8
   {
-
-    /*
-      cbchar( uint32_t uc )
-      Возвращает количество символов, которыми кодируется этот символ.
+   /*
+    * cbchar( uint32_t uc )
+    * Возвращает количество символов, которыми кодируется этот символ.
     */
     inline  size_t  cbchar( uint32_t n );
 
-    /*
-      cbchar( const widechar* wcs, size_t len )
-      Возвращает количество байт, кодирующих строку
+   /*
+    * cbchar( const widechar* wcs, size_t len )
+    * Возвращает количество байт, кодирующих строку
     */
     inline  size_t  cbchar( const widechar* wcs, size_t len );
 
-    /*
-      cbchar( utfstr )
-      Возвращает количество байт, кодирующих первый символ строки.
+   /*
+    * cbchar( utfstr )
+    * Возвращает количество байт, кодирующих первый символ строки.
     */
     inline  size_t  cbchar( const char* ptrtop, size_t  cchstr = (size_t)-1 );
 
-    /*
-      detect( utfstr )
-      Возвращает признак того, что строка является utf8-строкой.
+   /*
+    * detect( utfstr )
+    * Возвращает признак того, что строка является utf8-строкой.
     */
     inline  bool    detect( const char* pszstr, size_t  cchstr = (size_t)-1 );
 
-    /*
-      strlen( utfstr )
-      Возвращает количество символов, закодированных utf8-строкой.
+   /*
+    * strlen( utfstr )
+    * Возвращает количество символов, закодированных utf8-строкой.
     */
     inline  size_t  strlen( const char* pszstr, size_t  cchstr = (size_t)-1 );
 
-    /*
-      wcslen( utfstr )
-      Возвращает количество uint16_t, необходимых для представления строки.
+   /*
+    * wcslen( utfstr )
+    * Возвращает количество uint16_t, необходимых для представления строки.
     */
     inline  size_t  wcslen( const char* pszstr, size_t  cchstr = (size_t)-1 );
   }
@@ -422,124 +421,122 @@ namespace codepages
 
     template <const widechar xt[]>
     inline  char  chartocase( unsigned codepage, char ch )
+    {
+      switch ( codepage )
       {
-        switch ( codepage )
-        {
-          case codepage_koi8:
-            return  cvt_byte<xlatWinToKoi,
-                    utf_1251<
-                    cvt_wide<xt,
-                    cvt_wide<xlatWinToUtf16,
-                    cvt_byte<xlatKoiToWin> > > > >().translate( (unsigned char)ch );
-          case codepage_866:
-            return  cvt_byte<xlatWinToDos,
-                    utf_1251<
-                    cvt_wide<xt,
-                    cvt_wide<xlatWinToUtf16,
-                    cvt_byte<xlatDosToWin> > > > >().translate( (unsigned char)ch );
-          case codepage_iso:
-            return  cvt_byte<xlatWinToIso,
-                    utf_1251<
-                    cvt_wide<xt,
-                    cvt_wide<xlatWinToUtf16,
-                    cvt_byte<xlatIsoToWin> > > > >().translate( (unsigned char)ch );
-          case codepage_mac:
-            return  cvt_byte<xlatWinToMac,
-                    utf_1251<
-                    cvt_wide<xt,
-                    cvt_wide<xlatWinToUtf16,
-                    cvt_byte<xlatMacToWin> > > > >().translate( (unsigned char)ch );
-          case codepage_utf8:
-            if ( (ch & 0x80) != 0 )
-              return 0;
-          case codepage_1251:
-          case codepage_1252:
-          case codepage_1254:
-          default:
-            return  (char)(unsigned char)
-                    utf_1251<
-                    cvt_wide<xt,
-                    cvt_wide<xlatWinToUtf16> > >().translate( (unsigned char)ch );
-        }
+        case codepage_koi8:
+          return  cvt_byte<xlatWinToKoi,
+                  utf_1251<
+                  cvt_wide<xt,
+                  cvt_wide<xlatWinToUtf16,
+                  cvt_byte<xlatKoiToWin> > > > >().translate( (unsigned char)ch );
+        case codepage_866:
+          return  cvt_byte<xlatWinToDos,
+                  utf_1251<
+                  cvt_wide<xt,
+                  cvt_wide<xlatWinToUtf16,
+                  cvt_byte<xlatDosToWin> > > > >().translate( (unsigned char)ch );
+        case codepage_iso:
+          return  cvt_byte<xlatWinToIso,
+                  utf_1251<
+                  cvt_wide<xt,
+                  cvt_wide<xlatWinToUtf16,
+                  cvt_byte<xlatIsoToWin> > > > >().translate( (unsigned char)ch );
+        case codepage_mac:
+          return  cvt_byte<xlatWinToMac,
+                  utf_1251<
+                  cvt_wide<xt,
+                  cvt_wide<xlatWinToUtf16,
+                  cvt_byte<xlatMacToWin> > > > >().translate( (unsigned char)ch );
+        case codepage_utf8:
+          if ( (ch & 0x80) != 0 )
+            return 0;
+        case codepage_1251:
+        case codepage_1252:
+        case codepage_1254:
+        default:
+          return  (char)(unsigned char)
+                  utf_1251<
+                  cvt_wide<xt,
+                  cvt_wide<xlatWinToUtf16> > >().translate( (unsigned char)ch );
       }
+    }
 
     template <const widechar xt[]>
     inline  size_t  strtocase( unsigned codepage, char* o, size_t l, const char* s, size_t u = (size_t)-1 )
+    {
+      switch ( codepage )
       {
-        switch ( codepage )
-        {
-          case codepage_koi8:
-            return __impl__::utf::recodetext<
-              cvt_byte<xlatWinToKoi,
-              utf_1251<
-              cvt_wide<xt,
-              cvt_wide<xlatWinToUtf16,
-              cvt_byte<xlatKoiToWin> > > > > >( o, l, (const unsigned char*)s, u );
-          case codepage_866:
-            return __impl__::utf::recodetext<
-              cvt_byte<xlatWinToDos,
-              utf_1251<
-              cvt_wide<xt,
-              cvt_wide<xlatWinToUtf16,
-              cvt_byte<xlatDosToWin> > > > > >( o, l, (const unsigned char*)s, u );
-          case codepage_iso:
-            return __impl__::utf::recodetext<
-              cvt_byte<xlatWinToIso,
-              utf_1251<
-              cvt_wide<xt,
-              cvt_wide<xlatWinToUtf16,
-              cvt_byte<xlatIsoToWin> > > > > >( o, l, (const unsigned char*)s, u );
-          case codepage_mac:
-            return __impl__::utf::recodetext<
-              cvt_byte<xlatWinToMac,
-              utf_1251<
-              cvt_wide<xt,
-              cvt_wide<xlatWinToUtf16,
-              cvt_byte<xlatMacToWin> > > > > >( o, l, (const unsigned char*)s, u );
-          case codepage_utf8:
+        case codepage_koi8:
+          return __impl__::utf::recodetext<
+            cvt_byte<xlatWinToKoi,
+            utf_1251<
+            cvt_wide<xt,
+            cvt_wide<xlatWinToUtf16,
+            cvt_byte<xlatKoiToWin> > > > > >( o, l, (const unsigned char*)s, u );
+        case codepage_866:
+          return __impl__::utf::recodetext<
+            cvt_byte<xlatWinToDos,
+            utf_1251<
+            cvt_wide<xt,
+            cvt_wide<xlatWinToUtf16,
+            cvt_byte<xlatDosToWin> > > > > >( o, l, (const unsigned char*)s, u );
+        case codepage_iso:
+          return __impl__::utf::recodetext<
+            cvt_byte<xlatWinToIso,
+            utf_1251<
+            cvt_wide<xt,
+            cvt_wide<xlatWinToUtf16,
+            cvt_byte<xlatIsoToWin> > > > > >( o, l, (const unsigned char*)s, u );
+        case codepage_mac:
+          return __impl__::utf::recodetext<
+            cvt_byte<xlatWinToMac,
+            utf_1251<
+            cvt_wide<xt,
+            cvt_wide<xlatWinToUtf16,
+            cvt_byte<xlatMacToWin> > > > > >( o, l, (const unsigned char*)s, u );
+        case codepage_utf8:
+          {
+            const char* e;
+            char*       b;
+
+            if ( u == (size_t)-1 )  for ( e = s; *e != 0; ++e ) (void)NULL;
+              else e = s + u;
+
+            for ( b = o; s < e; ++s )
             {
-              const char* e;
-              char*       b;
+              widechar  c;
+              size_t    n;
 
-              if ( u == (size_t)-1 )  for ( e = s; *e != 0; ++e ) (void)NULL;
-                else e = s + u;
-
-              for ( b = o; s < e; ++s )
+              if ( (n = utf8::cbchar( s, e - s )) != 0 )
               {
-                widechar  c;
-                size_t    n;
-
-                if ( (n = utf8::cbchar( s, e - s )) != 0 )
-                {
-                  c = utf::decodechar<__impl__::cvt_wide<xt> >( s, n );
-                    s += n - 1;
-                  if ( (n = utf::encodechar<>( o, l, c )) == (size_t)-1 )
-                    return n;
-                  o += n;
-                  l -= n;
-                }
+                c = utf::decodechar<__impl__::cvt_wide<xt> >( s, n );
+                  s += n - 1;
+                if ( (n = utf::encodechar<>( o, l, c )) == (size_t)-1 )
+                  return n;
+                o += n;
+                l -= n;
               }
-              if ( l > 0 )
-                *o = '\0';
-              return o - b;
             }
-          case codepage_1251:
-          case codepage_1252:
-          case codepage_1254:
-          default:
-            return utf::recodetext<
-              utf_1251<
-              cvt_wide<xt,
-              cvt_wide<xlatWinToUtf16> > > >( o, l, (const unsigned char*)s, u );
-        }
+            if ( l > 0 )
+              *o = '\0';
+            return o - b;
+          }
+        case codepage_1251:
+        case codepage_1252:
+        case codepage_1254:
+        default:
+          return utf::recodetext<
+            utf_1251<
+            cvt_wide<xt,
+            cvt_wide<xlatWinToUtf16> > > >( o, l, (const unsigned char*)s, u );
       }
+    }
 
   }
 
-  /*
-
-    utf8 - работа с utf8-строками
-
+ /*
+  * utf8 - работа с utf8-строками
   */
   namespace utf8
   {
@@ -681,16 +678,22 @@ namespace codepages
 
   }
 
-  inline  uint32_t  chartolower( uint32_t ch )    { return ch <= 0xffff ? __impl__::cvt_wide<xlatUtf16Lower>().translate( ch ) : ch;  }
-  inline  uint32_t  chartoupper( uint32_t ch )    { return ch <= 0xffff ? __impl__::cvt_wide<xlatUtf16Upper>().translate( ch ) : ch;  }
+  inline  uint32_t  chartolower( uint32_t ch )
+    { return ch <= 0xffff ? __impl__::cvt_wide<xlatUtf16Lower>().translate( ch ) : ch;  }
 
-  inline  char      chartolower( unsigned codepage, char ch ) {  return __impl__::chartocase<xlatUtf16Lower>( codepage, ch );  }
-  inline  char      chartoupper( unsigned codepage, char ch ) {  return __impl__::chartocase<xlatUtf16Upper>( codepage, ch );  }
+  inline  uint32_t  chartoupper( uint32_t ch )
+    { return ch <= 0xffff ? __impl__::cvt_wide<xlatUtf16Upper>().translate( ch ) : ch;  }
 
-  inline  size_t    strtolower( widechar* o, size_t l, const widechar* s, size_t  u = (size_t)-1 )
+  inline  char    chartolower( unsigned codepage, char ch )
+    {  return __impl__::chartocase<xlatUtf16Lower>( codepage, ch );  }
+
+  inline  char    chartoupper( unsigned codepage, char ch )
+    {  return __impl__::chartocase<xlatUtf16Upper>( codepage, ch );  }
+
+  inline  size_t  strtolower( widechar* o, size_t l, const widechar* s, size_t  u = (size_t)-1 )
     {  return __impl__::utf::recodetext<__impl__::cvt_wide<xlatUtf16Lower> >( o, l, s, u );  }
 
-  inline  size_t    strtoupper( widechar* o, size_t l, const widechar* s, size_t  u = (size_t)-1 )
+  inline  size_t  strtoupper( widechar* o, size_t l, const widechar* s, size_t  u = (size_t)-1 )
     {  return __impl__::utf::recodetext<__impl__::cvt_wide<xlatUtf16Upper> >( o, l, s, u );  }
 
   inline  size_t  strtolower( unsigned codepage, char* o, size_t l, const char* s, size_t u = (size_t)-1 )
@@ -1030,6 +1033,13 @@ namespace codepages
     {  return mbcstowide( source_cp, s.c_str(), s.length() );  }
   inline  charstring  mbcstombcs( unsigned target_cp, unsigned source_cp, const charstring& s )
     {  return mbcstombcs( target_cp, source_cp, s.c_str(), s.length() );  }
+
+ /*
+  * detect( str[, len] );
+  *
+  * Детектор кодовых страниц на триграммах.
+  */
+  unsigned  detect( const char*, size_t length = (size_t)-1 );
 
 } // codepages namespace
 
