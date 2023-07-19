@@ -12,15 +12,34 @@ endif()
 
 add_subdirectory(test)
 
+add_custom_command(OUTPUT ${moonycode_SOURCE_DIR}/stat/trigraph.cpp
+	COMMAND	echo "namespace codepages"               >  ${moonycode_SOURCE_DIR}/stat/trigraph.cpp
+	COMMAND	echo "{"                                 >> ${moonycode_SOURCE_DIR}/stat/trigraph.cpp
+	COMMAND echo "  unsigned char rus_trigraph[] ="  >> ${moonycode_SOURCE_DIR}/stat/trigraph.cpp
+	COMMAND echo "  {"                               >> ${moonycode_SOURCE_DIR}/stat/trigraph.cpp
+	COMMAND tritree < ${moonycode_SOURCE_DIR}/text/kondrashov.txt | xxd -i >> ${moonycode_SOURCE_DIR}/stat/trigraph.cpp
+	COMMAND echo "  }\;"                             >> ${moonycode_SOURCE_DIR}/stat/trigraph.cpp
+	COMMAND echo "}"                                 >> ${moonycode_SOURCE_DIR}/stat/trigraph.cpp
+	DEPENDS tritree ${moonycode_SOURCE_DIR}/text/kondrashov.txt )
+
 add_library(moonycode STATIC
-  chartype.cpp
-  utf16_lo.cpp
-  utf16_up.cpp
-  utf16win.cpp
-  win_dos.cpp
-  win_iso.cpp
-  win_koi.cpp
-  win_mac.cpp)
+	chartype.cpp
+	cpdetect.cpp
+
+	stat/trigraph.cpp
+
+	xlat/utf16_lo.cpp
+	xlat/utf16_up.cpp
+	xlat/utf16win.cpp
+	xlat/one_one.cpp
+	xlat/win_dos.cpp
+	xlat/win_iso.cpp
+	xlat/win_koi.cpp
+	xlat/win_mac.cpp)
+
+add_executable(tritree
+	util/tritree.cpp
+	chartype.cpp)
 
 install(TARGETS moonycode DESTINATION lib)
 install(
