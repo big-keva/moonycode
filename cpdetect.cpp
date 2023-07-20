@@ -90,7 +90,10 @@ namespace codepages
     if ( size == (size_t)-1 )
       for ( size = 0; text[size] != 0; ++size ) (void)NULL;
 
-    for ( auto stop = text + size; text + 2 < stop; ++text, ++test )
+    for ( auto stop = text + size; text + 2 < stop; ++text )
+    {
+      bool  foundTrig = false;
+
       for ( auto& next: list )
       {
         auto  rate = findtrig( text, next.xlat );
@@ -99,12 +102,15 @@ namespace codepages
         {
           next.stat += rate;
           next.meet += 1;
+          foundTrig = true;
         }
+        test += foundTrig ? 1 : 0;
       }
+    }
 
     std::sort( std::begin( list ), std::end( list ) );
 
-    if ( list[0].meet > test / 2.0 )
+    if ( test != 0 && list[0].meet > test / 2.0 )
       return list[0].page;
 
     return 0;
