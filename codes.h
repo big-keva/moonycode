@@ -98,6 +98,8 @@ namespace codepages
   extern  const unsigned char   xlatIsoToWin[];
   extern  const unsigned char   xlatMacToWin[];
 
+  extern  const unsigned char   rus_trigraph[];
+
  /*
   * utf8 - примитивы
   */
@@ -699,8 +701,38 @@ namespace codepages
   inline  size_t  strtolower( unsigned codepage, char* o, size_t l, const char* s, size_t u = (size_t)-1 )
     {  return __impl__::strtocase<xlatUtf16Lower>( codepage, o, l, s, u );  }
 
+  inline  charstring  strtolower( unsigned codepage, const char* s, size_t l = (size_t)-1 )
+    {
+      std::string cs;
+
+      if ( l == (size_t)-1 )
+        for ( l = 0; s[l] != 0; ++l ) (void)NULL;
+
+      cs.assign( l + 1, 0 );
+        cs.resize( strtolower( codepage, (char*)cs.c_str(), cs.size(), s, l ) );
+      return cs;
+    }
+
+  inline  charstring  strtolower( unsigned codepage, const charstring& s )
+    {  return strtolower( codepage, s.c_str(), s.size() );  }
+
   inline  size_t  strtoupper( unsigned codepage, char* o, size_t l, const char* s, size_t u = (size_t)-1 )
     {  return __impl__::strtocase<xlatUtf16Upper>( codepage, o, l, s, u );  }
+
+  inline  charstring  strtoupper( unsigned codepage, const char* s, size_t l = (size_t)-1 )
+    {
+      std::string cs;
+
+      if ( l == (size_t)-1 )
+        for ( l = 0; s[l] != 0; ++l ) (void)NULL;
+
+      cs.assign( l + 1, 0 );
+        cs.resize( strtoupper( codepage, (char*)cs.c_str(), cs.size(), s, l ) );
+      return cs;
+    }
+
+  inline  charstring  strtoupper( unsigned codepage, const charstring& s )
+    {  return strtoupper( codepage, s.c_str(), s.size() );  }
 
   inline  widestring  strtolower( const widestring& s )
     {
@@ -1035,11 +1067,19 @@ namespace codepages
     {  return mbcstombcs( target_cp, source_cp, s.c_str(), s.length() );  }
 
  /*
-  * detect( str[, len] );
+  * detect::codepage( str[, len] );
   *
   * Детектор кодовых страниц на триграммах.
   */
-  unsigned  detect( const char*, size_t length = (size_t)-1 );
+  struct detect
+  {
+    static  unsigned  codepage( const char*, size_t length = (size_t)-1 );
+    static  unsigned  codepage( const std::string& );
+    static  unsigned  trigraph( const char*, const unsigned char* xlat = xlatOneToOne );
+    static  unsigned  trigraph( const std::string&, const unsigned char* xlat = xlatOneToOne );
+    static  bool      coverage( const char*, size_t length = (size_t)-1, const unsigned char* xlat = xlatOneToOne );
+    static  bool      coverage( const std::string&, const unsigned char* xlat = xlatOneToOne );
+  };
 
 } // codepages namespace
 

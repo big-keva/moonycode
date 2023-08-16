@@ -89,11 +89,11 @@ class trigraphtree<C, 0>
   template <class Ch, unsigned Cc>
   friend class trigraphtree;
 
-  C         chnode = 0;
-  unsigned  ucount = 1;
+  C         chnode;
+  unsigned  ucount;
 
 public:
-  trigraphtree( C c ): chnode( c ), ucount( 1 ) {}
+  trigraphtree( C c ): chnode( c ), ucount( 0 ) {}
 
 public:
   auto  add_trigraph( const C* ) -> unsigned&
@@ -145,7 +145,7 @@ public:     // serialization
     {
       auto  itemSize = it.GetBufLen();
 
-      size += 1 + itemSize + (L != 1 ? ::GetBufLen( itemSize ) : 0);
+      size += 1 + itemSize + (L != 0 ? ::GetBufLen( itemSize ) : 0);
     }
 
     return size;
@@ -160,7 +160,7 @@ public:     // serialization
     {
       o = ::Serialize( o, &it.chnode, 1 );
 
-      if ( L != 1 ) o = ::Serialize( ::Serialize( o, it.GetBufLen() ), it );
+      if ( L != 0 ) o = ::Serialize( ::Serialize( o, it.GetBufLen() ), it );
         else o = ::Serialize( o, it );
     }
     return o;
@@ -186,7 +186,7 @@ protected:
 };
 
 template <class C>
-void  add_sequense( trigraphtree<C, 3>& res, const C* seq, size_t len )
+void  add_sequence( trigraphtree<C, 3>& res, const C* seq, size_t len )
 {
   for ( auto end = seq + len - 3; seq <= end; ++seq )
     res.add_trigraph( seq );
@@ -210,7 +210,7 @@ void  add_charbuff( trigraphtree<C, 3>& res, const C* seq, size_t len = (size_t)
     for ( seq = top; seq != end && is_letter( *seq ); ++seq )
       (void)NULL;
 
-    add_sequense( res, top, seq - top );
+    add_sequence( res, top, seq - top );
   }
 }
 
