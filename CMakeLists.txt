@@ -12,15 +12,18 @@ endif()
 
 add_subdirectory(test)
 
-add_custom_command(OUTPUT ${moonycode_SOURCE_DIR}/stat/trigraph.cpp
-	COMMAND	echo "namespace codepages"               >  ${moonycode_SOURCE_DIR}/stat/trigraph.cpp
-	COMMAND	echo "{"                                 >> ${moonycode_SOURCE_DIR}/stat/trigraph.cpp
-	COMMAND echo "  unsigned char rus_trigraph[] ="  >> ${moonycode_SOURCE_DIR}/stat/trigraph.cpp
-	COMMAND echo "  {"                               >> ${moonycode_SOURCE_DIR}/stat/trigraph.cpp
-	COMMAND tritree < ${moonycode_SOURCE_DIR}/text/kondrashov.txt | xxd -i >> ${moonycode_SOURCE_DIR}/stat/trigraph.cpp
-	COMMAND echo "  }\;"                             >> ${moonycode_SOURCE_DIR}/stat/trigraph.cpp
-	COMMAND echo "}"                                 >> ${moonycode_SOURCE_DIR}/stat/trigraph.cpp
-	DEPENDS tritree ${moonycode_SOURCE_DIR}/text/kondrashov.txt )
+add_custom_command(OUTPUT stat/trigraph.cpp
+	COMMAND	echo "namespace codepages"               >  stat/trigraph.cpp
+	COMMAND	echo "{"                                 >> stat/trigraph.cpp
+	COMMAND echo "  unsigned char rus_trigraph[] ="  >> stat/trigraph.cpp
+	COMMAND echo "  {"                               >> stat/trigraph.cpp
+	COMMAND tritree ${moonycode_SOURCE_DIR}/text/kondrashov.txt | xxd -i >> stat/trigraph.cpp
+	COMMAND echo "  }\;"                             >> stat/trigraph.cpp
+	COMMAND echo "}"                                 >> stat/trigraph.cpp
+	DEPENDS tritree ${moonycode_SOURCE_DIR}/text/kondrashov.txt stat )
+
+add_custom_target(stat ALL
+	COMMAND ${CMAKE_COMMAND} -E make_directory stat)
 
 add_library(moonycode STATIC
 	chartype.cpp

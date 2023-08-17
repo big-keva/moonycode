@@ -1,9 +1,48 @@
 # include "../chartype.h"
-# include <mtc/serialize.h>
 # include <algorithm>
 # include <vector>
 # include <memory>
+# include <cstring>
 # include <cstdio>
+
+/*
+ * short ::Serialize()
+ */
+template <class O, class T>
+O*      Serialize( O* o, const T& );
+
+FILE*   Serialize( FILE* o, const void* p, size_t l )
+{
+  return fwrite( p, l, 1, o ) == l ? o : nullptr;
+}
+
+FILE*   Serialize( FILE* o, char c )          {  return Serialize( o, &c, 1 );  }
+FILE*   Serialize( FILE* o, unsigned char c ) {  return Serialize( o, &c, 1 );  }
+
+size_t  GetIntLen( const unsigned& u )
+{
+  auto  size = 1;
+
+  for ( auto uval = u; (uval & ~0x07f) != 0; uval >>= 7, ++size )
+    (void)NULL;
+  return size;
+}
+
+template <class T>
+FILE* Serialize( FILE* o, const T& u )
+{
+  auto  uval = u;
+
+  do
+  {
+    auto  uput = (unsigned char)(uval & 0x7f);
+      uval >>= 7;
+
+    if ( (o = Serialize( o, (unsigned char)(uput | (uval != 0 ? 0x80 : 0x00) )) ) == nullptr )
+      return nullptr;
+  } while ( uval != 0 );
+  return o;
+}
 
 namespace mtc
 {
@@ -103,7 +142,7 @@ public:
 
 public:
   auto  GetBufLen() const -> size_t
-    {  return ::GetBufLen( ucount );  }
+    {  return ::GetIntLen( ucount );  }
   template <class O>
   auto  Serialize( O* o ) const -> O*
     {  return ::Serialize( o, ucount );  }
@@ -139,13 +178,13 @@ public:
 public:     // serialization
   auto  GetBufLen() const -> size_t
   {
-    auto  size = ::GetBufLen( this->size() );
+    auto  size = ::GetIntLen( this->size() );
 
     for ( auto& it: *this )
     {
       auto  itemSize = it.GetBufLen();
 
-      size += 1 + itemSize + (L != 0 ? ::GetBufLen( itemSize ) : 0);
+      size += 1 + itemSize + (L != 0 ? ::GetIntLen( itemSize ) : 0);
     }
 
     return size;
@@ -160,8 +199,8 @@ public:     // serialization
     {
       o = ::Serialize( o, &it.chnode, 1 );
 
-      if ( L != 0 ) o = ::Serialize( ::Serialize( o, it.GetBufLen() ), it );
-        else o = ::Serialize( o, it );
+      if ( L != 0 ) o = it.Serialize( ::Serialize( o, it.GetBufLen() ) );
+        else o = it.Serialize( o );
     }
     return o;
   }
@@ -220,8 +259,13 @@ int   main( int argc, char* argv[] )
   auto  cptree = trigraphtree<unsigned char, 3>();
   auto  tosort = std::vector<std::pair<trigraph, unsigned>>();
   auto  summed = 0.0;
+  auto  infile = stdin;
 
-  while ( fgets( buffer.get(), 0x1000 - 1, stdin ) != nullptr )
+  if ( argc > 1 && strcmp( argv[1], "-" ) != 0 )
+    if ( (infile = fopen( argv[1], "rt" )) == nullptr )
+      return fprintf( stderr, "could not open file '%s'\n", argv[1] );
+
+  while ( fgets( buffer.get(), 0x1000 - 1, infile ) != nullptr )
     add_charbuff( cptree, (const unsigned char*)buffer.get() );
 
   cptree.put_to_array( tosort );
@@ -241,6 +285,9 @@ int   main( int argc, char* argv[] )
     cptree.add_trigraph( (const unsigned char*)it->first._ ) = it->second;
 
   cptree.Serialize( stdout );
+
+  if ( infile != stdin )
+    fclose( infile );
 
   return 0;
 }
