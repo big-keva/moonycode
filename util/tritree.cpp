@@ -55,11 +55,6 @@ namespace mtc
     unsigned  nbytes = 12;
     unsigned  stored = 0;
 
-    template <class To>
-    friend  auto  ::Serialize( DumpSource<To>*, const void*, size_t ) -> DumpSource<To>*;
-    template <class To>
-    friend  auto  MakeDumpSource( To* ) -> DumpSource<To>;
-
   protected:
     DumpSource( O* o ): output( o ) {}
 
