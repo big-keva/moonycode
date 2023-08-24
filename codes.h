@@ -81,7 +81,7 @@ namespace codepages
 
   const unsigned codepage_utf8 = 0x10;
 
-/* tyranslation tables          */
+/* translation tables          */
   extern  const widechar        xlatWinToUtf16[];
   extern  const unsigned char*  xlatUtf16ToWin[];
   extern  const widechar        xlatUtf16Lower[];
