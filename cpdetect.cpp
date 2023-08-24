@@ -24,10 +24,11 @@ namespace codepages
     const unsigned char* trig,
     const unsigned char* xlat )
   {
+    auto  chnext = xlat[*trig];
+
     for ( auto  size = *tree++; size-- > 0; )
     {
       auto  chtree = *tree++;
-      auto  chnext = xlat[*trig];
 
       if ( chtree <= chnext )
       {
@@ -104,8 +105,8 @@ namespace codepages
           next.meet += 1;
           foundTrig = true;
         }
-        test += foundTrig ? 1 : 0;
       }
+      test += foundTrig ? 1 : 0;
     }
 
     // get best codepage
