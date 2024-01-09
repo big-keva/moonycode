@@ -10,7 +10,7 @@ else()
   add_compile_options(-mfpmath=sse -fstack-protector-all -g -W -Wall -Wextra -Wcast-align -pedantic -Wfloat-equal -Wpointer-arith -Wformat-security -Wmissing-format-attribute -Wformat=1 -Wwrite-strings -Wcast-align -Wno-long-long -Woverloaded-virtual -Wno-suggest-attribute=format)
 endif()
 
-add_subdirectory(test)
+# add_subdirectory(test)
 
 add_custom_command(OUTPUT stat/trigraph.cpp
 	COMMAND	echo "namespace codepages"               >  stat/trigraph.cpp
@@ -25,10 +25,14 @@ add_custom_command(OUTPUT stat/trigraph.cpp
 add_custom_target(stat ALL
 	COMMAND ${CMAKE_COMMAND} -E make_directory stat)
 
+add_custom_command(OUTPUT stat/chartype.cpp
+	COMMAND mktypes ${moonycode_SOURCE_DIR}/UnicodeData.txt charType codepages > stat/chartype.cpp
+	DEPENDS mktypes ${moonycode_SOURCE_DIR}/UnicodeData.txt stat )
+
 add_library(moonycode STATIC
-	chartype.cpp
 	cpdetect.cpp
 
+	stat/chartype.cpp
 	stat/trigraph.cpp
 
 	xlat/utf16_lo.cpp
@@ -42,7 +46,10 @@ add_library(moonycode STATIC
 
 add_executable(tritree
 	util/tritree.cpp
-	chartype.cpp)
+	stat/chartype.cpp)
+
+add_executable(mktypes
+	util/mktypes.cpp)
 
 install(TARGETS moonycode DESTINATION lib)
 install(

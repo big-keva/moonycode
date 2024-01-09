@@ -1076,9 +1076,13 @@ namespace codepages
     static  unsigned  codepage( const char*, size_t length = (size_t)-1 );
     static  unsigned  codepage( const std::string& );
     static  unsigned  trigraph( const char*, const unsigned char* xlat = xlatOneToOne );
-    static  unsigned  trigraph( const std::string&, const unsigned char* xlat = xlatOneToOne );
+    static  unsigned  trigraph( const charstring&, const unsigned char* xlat = xlatOneToOne );
+    static  unsigned  trigraph( const widechar* );
+    static  unsigned  trigraph( const widestring& );
     static  bool      coverage( const char*, size_t length = (size_t)-1, const unsigned char* xlat = xlatOneToOne );
-    static  bool      coverage( const std::string&, const unsigned char* xlat = xlatOneToOne );
+    static  bool      coverage( const charstring&, const unsigned char* xlat = xlatOneToOne );
+    static  bool      coverage( const widechar*, size_t length = (size_t)-1 );
+    static  bool      coverage( const widestring& );
   };
 
 } // codepages namespace

@@ -18,29 +18,27 @@ namespace codepages
     return src;
   }
 
-  template <unsigned N>
-  unsigned  findtrig(
-    const unsigned char* tree,
-    const unsigned char* trig,
-    const unsigned char* xlat )
-  {
-    auto  chnext = xlat[*trig];
+  template <class ... trigraph>
+  unsigned  findtrig( const unsigned char*  tree, trigraph ... );
 
+  template <class ... trigraph>
+  unsigned  findtrig( const unsigned char*  tree, unsigned char next, trigraph... list )
+  {
     for ( auto  size = *tree++; size-- > 0; )
     {
       auto  chtree = *tree++;
 
-      if ( chtree <= chnext )
+      if ( chtree <= next )
       {
         unsigned  uvalue;
 
-        if ( chtree < chnext )
+        if ( chtree < next )
         {
           tree = GetUint( tree, uvalue );
           tree += uvalue;
         }
           else
-        return findtrig<N - 1>( GetUint( tree, uvalue ), trig + 1, xlat );
+        return findtrig( GetUint( tree, uvalue ), list... );
       }
         else
       break;
@@ -49,7 +47,7 @@ namespace codepages
   }
 
   template <>
-  unsigned  findtrig<0>( const unsigned char* tree, const unsigned char*, const unsigned char* )
+  unsigned  findtrig( const unsigned char* tree )
   {
     unsigned  uvalue;
 
@@ -97,7 +95,10 @@ namespace codepages
 
       for ( auto& next: list )
       {
-        auto  rate = findtrig<3>( rus_trigraph, (const unsigned char*)text, next.xlat );
+        auto  rate = findtrig( rus_trigraph,
+          next.xlat[(unsigned char)text[0]],
+          next.xlat[(unsigned char)text[1]],
+          next.xlat[(unsigned char)text[2]]);
 
         if ( rate != 0 )
         {
@@ -125,12 +126,23 @@ namespace codepages
 
   auto  detect::trigraph( const char* trig, const unsigned char* xlat ) -> unsigned
   {
-    return findtrig<3>( rus_trigraph, (const unsigned char*)trig, xlat );
+    return findtrig( rus_trigraph,
+      xlat[(unsigned char)trig[0]],
+      xlat[(unsigned char)trig[1]],
+      xlat[(unsigned char)trig[2]] );
   }
 
   auto  detect::trigraph( const std::string& trig, const unsigned char* xlat ) -> unsigned
   {
     return trig.length() >= 3 ? trigraph( trig.c_str(), xlat ) : false;
+  }
+
+  auto  detect::trigraph( const widechar* trig ) -> unsigned int
+  {
+    return findtrig( rus_trigraph,
+      (unsigned char)__impl__::utf_1251<>::translate( trig[0] ),
+      (unsigned char)__impl__::utf_1251<>::translate( trig[1] ),
+      (unsigned char)__impl__::utf_1251<>::translate( trig[2] ) );
   }
 
   bool  detect::coverage( const char* text, size_t size, const unsigned char* xlat )
@@ -142,8 +154,11 @@ namespace codepages
       for ( size = 0; text[size] != 0; ++size ) (void)NULL;
 
     for ( auto stop = text + size - 2; text < stop; ++text )
-      if ( !findtrig<3>( rus_trigraph, (const unsigned char*)text, xlat ) )
-        return false;
+      if ( !findtrig( rus_trigraph,
+        xlat[(unsigned char)text[0]],
+        xlat[(unsigned char)text[1]],
+        xlat[(unsigned char)text[2]] ) )
+      return false;
 
     return true;
   }
@@ -151,6 +166,24 @@ namespace codepages
   bool  detect::coverage( const std::string& text, const unsigned char* xlat )
   {
     return coverage( text.c_str(), text.length(), xlat );
+  }
+
+  bool  detect::coverage( const widechar* text, size_t size )
+  {
+    if ( text == nullptr )
+      return false;
+
+    if ( size == (size_t)-1 )
+      for ( size = 0; text[size] != 0; ++size ) (void)NULL;
+
+    for ( auto stop = text + size - 2; text < stop; ++text )
+      if ( !findtrig( rus_trigraph,
+        (unsigned char)__impl__::utf_1251<>::translate( text[0] ),
+        (unsigned char)__impl__::utf_1251<>::translate( text[1] ),
+        (unsigned char)__impl__::utf_1251<>::translate( text[2] ) ) )
+      return false;
+
+    return true;
   }
 
 }

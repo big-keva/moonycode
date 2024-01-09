@@ -74,7 +74,6 @@ namespace codepages
   const unsigned char cat_S = 0x60;
   const unsigned char cat_Z = 0x70;
 
-  const unsigned char cat_a = 0x01;
   const unsigned char cat_c = 0x02;
   const unsigned char cat_d = 0x03;
   const unsigned char cat_e = 0x04;
@@ -87,6 +86,8 @@ namespace codepages
   const unsigned char cat_o = 0x0b;
   const unsigned char cat_p = 0x0c;
   const unsigned char cat_s = 0x0d;
+  const unsigned char cat_t = 0x0e;
+  const unsigned char cat_u = 0x0f;
 
   const unsigned char cat_Cc = cat_C + cat_c;
   const unsigned char cat_Zs = cat_Z + cat_s;
