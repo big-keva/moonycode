@@ -3,16 +3,50 @@ load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
 cc_library(
     name = "moonycode",
     srcs = [
-	"chartype.cpp",
-	"utf16_lo.cpp",
-	"utf16_up.cpp",
-	"utf16win.cpp",
-	"win_dos.cpp",
-	"win_iso.cpp",
-	"win_koi.cpp",
-	"win_mac.cpp"],
+	":moonycode_chartypes",
+        ":moonycode_trigraphs",
+	"xlat/utf16_lo.cpp",
+	"xlat/utf16_up.cpp",
+	"xlat/utf16win.cpp",
+	"xlat/win_dos.cpp",
+	"xlat/win_iso.cpp",
+	"xlat/win_koi.cpp",
+	"xlat/win_mac.cpp"],
     hdrs = [
 	"chartype.h",
 	"codes.h"],
     visibility = ["//visibility:public"],
+)
+
+genrule(
+  name = "moonycode_chartypes",
+  outs = ["autogen/chartype.cpp"],
+  cmd = "./$(location :moonycode_mktypes) $(SRCS) charType codepages > $@",
+  srcs = ["UnicodeData.txt"],
+  tools = [":moonycode_mktypes"],
+)
+
+genrule(
+  name = "moonycode_trigraphs",
+  outs = ["autogen/trigraph.cpp"],
+  cmd = "./$(location :moonycode_tritree) $(SRCS) rus_trigraph codepages > $@",
+  srcs = ["text/kondrashov.txt"],
+  tools = [":moonycode_tritree"],
+)
+
+cc_binary(
+  name = "moonycode_mktypes",
+  srcs = [
+    "util/mktypes.cpp",
+    "chartype.h"],
+  includes = ["./"]
+)
+
+cc_binary(
+  name = "moonycode_tritree",
+  srcs = [
+    ":moonycode_chartypes",
+    "util/tritree.cpp",
+    "chartype.h"],
+  includes = ["./"]
 )

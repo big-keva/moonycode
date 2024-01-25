@@ -8,16 +8,16 @@
 /*
  * short ::Serialize()
  */
-template <class O, class T>
-O*      Serialize( O* o, const T& );
+template <class O, class T> O*    Serialize( O* o, const T& );
+template <class O>          O*    Serialize( O*, const void*, size_t );
 
-FILE*   Serialize( FILE* o, const void* p, size_t l )
-{
-  return fwrite( p, l, 1, o ) == l ? o : nullptr;
-}
+template <>                 FILE* Serialize( FILE* o, const void* p, size_t l )
+  {  return fwrite( p, 1, l, o ) == l ? o : nullptr;  }
 
-FILE*   Serialize( FILE* o, char c )          {  return Serialize( o, &c, 1 );  }
-FILE*   Serialize( FILE* o, unsigned char c ) {  return Serialize( o, &c, 1 );  }
+template <class O>  O*  Serialize( O* o, char c )
+  {  return Serialize( o, &c, 1 );  }
+template <class O>  O*  Serialize( O* o, unsigned char c )
+  {  return Serialize( o, &c, 1 );  }
 
 size_t  GetIntLen( const unsigned& u )
 {
@@ -28,8 +28,8 @@ size_t  GetIntLen( const unsigned& u )
   return size;
 }
 
-template <class T>
-FILE* Serialize( FILE* o, const T& u )
+template <class O, class T>
+O*  Serialize( O* o, const T& u )
 {
   auto  uval = u;
 
@@ -50,6 +50,11 @@ namespace mtc
   template <class O>
   class DumpSource
   {
+    template <class T>
+    friend  auto  MakeDumpSource( T* ) -> DumpSource<T>;
+    template <class T>
+    friend  auto  ::Serialize( DumpSource<T>*, const void*, size_t ) -> DumpSource<T>*;
+
     O*        output = nullptr;
     unsigned  ushift = 2;
     unsigned  nbytes = 12;
@@ -63,8 +68,7 @@ namespace mtc
     auto  set_shift( unsigned u ) -> DumpSource&  {  return ushift = u, *this;  }
 
   public:
-    auto  begin() const -> DumpSource<O>*
-    {  return (DumpSource<O>*)this;  }
+    auto  begin() const -> DumpSource<O>* {  return (DumpSource<O>*)this;  }
 
   protected:
     bool  put( const void* p, size_t l )
@@ -93,7 +97,7 @@ namespace mtc
 
         output = ::Serialize( output, next, 4 );
       }
-      return output;
+      return true;
     }
   };
 
@@ -186,7 +190,7 @@ public:     // serialization
   }
 
   template <class O>
-  auto  Serialize( O* o ) const
+  O*  Serialize( O* o ) const
   {
     o = ::Serialize( o, this->size() );
 
@@ -248,21 +252,44 @@ void  add_charbuff( trigraphtree<C, 3>& res, const C* seq, size_t len = (size_t)
   }
 }
 
+const char about[] = "tritree - create the trigraph distribution dictionary using text example.\n"
+                     "usage: tritree {source or - to read stdin} [varname=trigraph] [namespace]\n";
+
 int   main( int argc, char* argv[] )
 {
-  auto  buffer = std::unique_ptr<char>( new char[0x1000] );
-  auto  cptree = trigraphtree<unsigned char, 3>();
-  auto  tosort = std::vector<std::pair<trigraph, unsigned>>();
-  auto  summed = 0.0;
-  auto  infile = stdin;
+  const char* pszsrc = nullptr;
+  const char* vaname = nullptr;
+  const char* nspace = nullptr;
+  FILE*       source;
+  auto        buffer = std::unique_ptr<char>( new char[0x1000] );
+  auto        cptree = trigraphtree<unsigned char, 3>();
+  auto        tosort = std::vector<std::pair<trigraph, unsigned>>();
+  auto        summed = 0.0;
+  const char* sshift = "";
+  auto        nshift = 2;
 
-  if ( argc > 1 && strcmp( argv[1], "-" ) != 0 )
-    if ( (infile = fopen( argv[1], "rt" )) == nullptr )
-      return fprintf( stderr, "could not open file '%s'\n", argv[1] );
+// parse command line
+  for ( auto i = 1; i < argc; ++i )
+    if ( pszsrc == nullptr )  pszsrc = argv[i];
+      else
+    if ( vaname == nullptr )  vaname = argv[i];
+      else
+    if ( nspace == nullptr )  nspace = argv[i];
 
-  while ( fgets( buffer.get(), 0x1000 - 1, infile ) != nullptr )
+  if ( pszsrc == nullptr )  {  fprintf( stderr, about );  return -1;  }
+    else  vaname = vaname != nullptr ? vaname : "trigraph";
+
+// check & open source file
+  if ( strcmp( pszsrc, "-" ) == 0 ) source = stdin;
+    else
+  if ( (source = fopen( pszsrc, "rt" )) == nullptr )
+    return fprintf( stderr, "Could not open file \'%s\'!\n", pszsrc ), ENOENT;
+
+// read source file
+  while ( fgets( buffer.get(), 0x1000 - 1, source ) != nullptr )
     add_charbuff( cptree, (const unsigned char*)buffer.get() );
 
+  // limit to most frequent trigraphs
   cptree.put_to_array( tosort );
 
   std::sort( tosort.begin(), tosort.end(), [](
@@ -274,15 +301,35 @@ int   main( int argc, char* argv[] )
 
   summed = 0.98 * summed;
 
+// put back to trigraph tree
   cptree.clear();
 
   for ( auto it = tosort.begin(); it != tosort.end() && summed > 0 ; summed -= (it++)->second )
     cptree.add_trigraph( (const unsigned char*)it->first._ ) = it->second;
 
-  cptree.Serialize( stdout );
+  // serialize to output
+  if ( nspace != nullptr )
+  {
+    fprintf( stdout, "namespace %s\n{\n", nspace );
+    nshift = 4;
+    sshift = "  ";
+  }
 
-  if ( infile != stdin )
-    fclose( infile );
+  fprintf( stdout, "%sunsigned char %s[] =\n%s{\n",
+    sshift,
+    vaname,
+    sshift );
+
+  cptree.Serialize( mtc::MakeDumpSource( stdout ).set_shift( nshift ).begin() );
+
+  fprintf( stdout, "\n%s};\n",
+    sshift );
+
+  if ( nspace != nullptr )
+    fputs( "}\n", stdout );
+
+  if ( source != stdin )
+    fclose( source );
 
   return 0;
 }

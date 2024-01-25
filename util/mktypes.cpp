@@ -103,8 +103,8 @@ int   LoadCharType( FILE* source )
   return 0;
 }
 
-const char about[] = "umap - create the unicode character type map from it's text representation.\n"
-                     "usage: umap source [varname=charType] [namespace]\n";
+const char about[] = "mktypes - create the unicode character type map from it's text representation.\n"
+                     "usage: mktypes source [varname=charType] [namespace]\n";
 
 int   main( int argc, char* argv[] )
 {
