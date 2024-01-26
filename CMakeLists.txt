@@ -13,7 +13,7 @@ endif()
 # add_subdirectory(test)
 
 add_custom_command(OUTPUT stat/trigraph.cpp
-	COMMAND moonycode-tritree ${moonycode_SOURCE_DIR}/text/kondrashov.txt rus_trigraph codepages >> stat/trigraph.cpp
+	COMMAND moonycode-tritree ${moonycode_SOURCE_DIR}/text/kondrashov.txt rus_trigraph codepages > stat/trigraph.cpp
 	DEPENDS moonycode-tritree ${moonycode_SOURCE_DIR}/text/kondrashov.txt stat )
 
 add_custom_target(stat ALL
