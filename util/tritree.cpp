@@ -4,6 +4,7 @@
 # include <memory>
 # include <cstring>
 # include <cstdio>
+# include <errno.h>
 
 /*
  * short ::Serialize()
