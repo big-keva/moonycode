@@ -258,16 +258,16 @@ const char about[] = "tritree - create the trigraph distribution dictionary usin
 
 int   main( int argc, char* argv[] )
 {
-  const char* pszsrc = nullptr;
-  const char* vaname = nullptr;
-  const char* nspace = nullptr;
-  FILE*       source;
-  auto        buffer = std::unique_ptr<char>( new char[0x1000] );
-  auto        cptree = trigraphtree<unsigned char, 3>();
-  auto        tosort = std::vector<std::pair<trigraph, unsigned>>();
-  auto        summed = 0.0;
-  const char* sshift = "";
-  auto        nshift = 2;
+  const char*       pszsrc = nullptr;
+  const char*       vaname = nullptr;
+  const char*       nspace = nullptr;
+  FILE*             source;
+  std::vector<char> buffer( 0x1000 );
+  auto              cptree = trigraphtree<unsigned char, 3>();
+  auto              tosort = std::vector<std::pair<trigraph, unsigned>>();
+  auto              summed = 0.0;
+  const char*       sshift = "";
+  auto              nshift = 2;
 
 // parse command line
   for ( auto i = 1; i < argc; ++i )
@@ -287,8 +287,8 @@ int   main( int argc, char* argv[] )
     return fprintf( stderr, "Could not open file \'%s\'!\n", pszsrc ), ENOENT;
 
 // read source file
-  while ( fgets( buffer.get(), 0x1000 - 1, source ) != nullptr )
-    add_charbuff( cptree, (const unsigned char*)buffer.get() );
+  while ( fgets( buffer.data(), 0x1000 - 1, source ) != nullptr )
+    add_charbuff( cptree, (const unsigned char*)buffer.data() );
 
   // limit to most frequent trigraphs
   cptree.put_to_array( tosort );
