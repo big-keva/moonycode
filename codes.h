@@ -173,7 +173,7 @@ namespace codepages
       static  uint32_t  translate( uint32_t c )
         {
           auto  conv_c = __cvt__::translate( c );
-        
+
           return conv_c <= 0xffff ? xlatUtf16ToWin[conv_c >> 8][conv_c & 0x00ff] : '?';
         }
     };
@@ -245,7 +245,7 @@ namespace codepages
 
         inline  size_t    put( char* o, size_t l, uint32_t u )
           {
-            return l > 0 ? (*o = (char)(uint8_t)u, 1) : (size_t)-1;
+            return u != 0 ? l > 0 ? (*o = (char)(uint8_t)u, 1) : (size_t)-1 : 0;
           }
 
       }
