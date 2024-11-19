@@ -10,6 +10,8 @@ else()
   add_compile_options(-mfpmath=sse -fstack-protector-all -g -W -Wall -Wextra -Wcast-align -pedantic -Wfloat-equal -Wpointer-arith -Wformat-security -Wmissing-format-attribute -Wformat=1 -Wwrite-strings -Wcast-align -Wno-long-long -Woverloaded-virtual -Wno-suggest-attribute=format)
 endif()
 
+add_compile_options(-fPIC)
+
 # add_subdirectory(test)
 
 add_custom_command(OUTPUT stat/trigraph.cpp
