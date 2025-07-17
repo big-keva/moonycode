@@ -67,6 +67,9 @@ SOFTWARE.
 
 namespace codepages
 {
+  template <class C, class A>
+  using basestring = std::basic_string<C, std::char_traits<C>, A>;
+
   using charstring = std::string;
   using widestring = std::basic_string<widechar>;
 
@@ -701,58 +704,104 @@ namespace codepages
   inline  size_t  strtolower( unsigned codepage, char* o, size_t l, const char* s, size_t u = (size_t)-1 )
     {  return __impl__::strtocase<xlatUtf16Lower>( codepage, o, l, s, u );  }
 
-  inline  charstring  strtolower( unsigned codepage, const char* s, size_t l = (size_t)-1 )
-    {
-      std::string cs;
+  template <class Allocator>
+  auto  strtolower(
+    basestring<char, Allocator>&  cs,
+    unsigned                      cp,
+    const char*                   ps,
+    size_t                        nc = (size_t)-1 ) -> basestring<char, Allocator>&
+  {
+    if ( nc == (size_t)-1 )
+      for ( nc = 0; ps[nc] != 0; ++nc ) (void)NULL;
 
-      if ( l == (size_t)-1 )
-        for ( l = 0; s[l] != 0; ++l ) (void)NULL;
+    cs.assign( nc + 1, 0 );
+    cs.resize( strtolower( cp, (char*)cs.c_str(), cs.size(), ps, nc ) );
+    return cs;
+  }
 
-      cs.assign( l + 1, 0 );
-        cs.resize( strtolower( codepage, (char*)cs.c_str(), cs.size(), s, l ) );
-      return cs;
-    }
+  inline
+  charstring  strtolower( unsigned cp, const char* ps, size_t nc = (size_t)-1 )
+  {
+    std::string cs;
 
-  inline  charstring  strtolower( unsigned codepage, const charstring& s )
-    {  return strtolower( codepage, s.c_str(), s.size() );  }
+    return strtolower( cs, cp, ps, nc );
+  }
+
+  template <class Allocator>
+  charstring  strtolower( unsigned codepage, const basestring<char, Allocator>& s )
+  {
+    return strtolower( codepage, s.c_str(), s.size() );
+  }
 
   inline  size_t  strtoupper( unsigned codepage, char* o, size_t l, const char* s, size_t u = (size_t)-1 )
     {  return __impl__::strtocase<xlatUtf16Upper>( codepage, o, l, s, u );  }
 
-  inline  charstring  strtoupper( unsigned codepage, const char* s, size_t l = (size_t)-1 )
-    {
-      std::string cs;
+  template <class Allocator>
+  auto  strtoupper(
+    basestring<char, Allocator>&  cs,
+    unsigned                      cp,
+    const char*                   ps,
+    size_t                        nc = (size_t)-1 ) -> basestring<char, Allocator>&
+  {
+    if ( nc == (size_t)-1 )
+      for ( nc = 0; ps[nc] != 0; ++nc ) (void)NULL;
 
-      if ( l == (size_t)-1 )
-        for ( l = 0; s[l] != 0; ++l ) (void)NULL;
+    cs.assign( nc + 1, 0 );
+    cs.resize( strtoupper( cp, (char*)cs.c_str(), cs.size(), ps, nc ) );
+    return cs;
+  }
 
-      cs.assign( l + 1, 0 );
-        cs.resize( strtoupper( codepage, (char*)cs.c_str(), cs.size(), s, l ) );
-      return cs;
-    }
+  inline
+  charstring  strtoupper( unsigned cp, const char* ps, size_t nc = (size_t)-1 )
+  {
+    std::string cs;
 
-  inline  charstring  strtoupper( unsigned codepage, const charstring& s )
-    {  return strtoupper( codepage, s.c_str(), s.size() );  }
+    return strtoupper( cs, cp, ps, nc );
+  }
 
-  inline  widestring  strtolower( const widestring& s )
-    {
-      widestring  out( s.c_str(), s.length() );
+  template <class Allocator>
+  charstring  strtoupper( unsigned codepage, const basestring<char, Allocator>& s )
+  {
+    return strtoupper( codepage, s.c_str(), s.size() );
+  }
 
-      __impl__::utf::recodetext<__impl__::cvt_wide<xlatUtf16Lower> >( (widechar*)out.c_str(), out.length(),
-        s.c_str(), s.length() );
+  template <class Allocator>
+  widestring  strtolower( const basestring<widechar, Allocator>& s )
+  {
+    widestring  out( s.c_str(), s.length() );
 
-      return out;
-    }
+    __impl__::utf::recodetext<__impl__::cvt_wide<xlatUtf16Lower> >( (widechar*)out.c_str(), out.length(),
+      s.c_str(), s.length() );
 
-  inline  widestring  strtoupper( const widestring& s )
-    {
-      widestring  out( s );
+    return out;
+  }
 
-      __impl__::utf::recodetext<__impl__::cvt_wide<xlatUtf16Upper> >( (widechar*)out.c_str(), out.length(),
-        s.c_str(), s.length() );
+  inline
+  widestring  strtolower( const widechar* s, size_t l = (size_t)-1 )
+  {
+    widestring  ws;
 
-      return out;
-    }
+    if ( l == (size_t)-1 )
+      for ( l = 0; s[l] != 0; ++l ) (void)NULL;
+
+    ws.assign( l, 0 );
+
+    __impl__::utf::recodetext<__impl__::cvt_wide<xlatUtf16Lower> >( (widechar*)ws.c_str(), ws.length(),
+      s, l );
+
+    return ws;
+  }
+
+  template <class Allocator>
+  widestring  strtoupper( const basestring<widechar, Allocator>& s )
+  {
+    widestring  out( s );
+
+    __impl__::utf::recodetext<__impl__::cvt_wide<xlatUtf16Upper> >( (widechar*)out.c_str(), out.length(),
+      s.c_str(), s.length() );
+
+    return out;
+  }
 
   inline  widechar  chartowide( unsigned codepage, char c )
     {
