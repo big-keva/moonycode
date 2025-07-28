@@ -56,6 +56,10 @@ SOFTWARE.
 # include <cstdint>
 # include <string>
 
+# if __cplusplus >= 201703L
+#   include <string_view>
+# endif
+
 # if !defined( __widechar_defined__ )
 # define  __widechar_defined__
 #   if defined(WCHAR_MAX) && (WCHAR_MAX >> 16) == 0
@@ -704,6 +708,41 @@ namespace codepages
   inline  size_t  strtolower( unsigned codepage, char* o, size_t l, const char* s, size_t u = (size_t)-1 )
     {  return __impl__::strtocase<xlatUtf16Lower>( codepage, o, l, s, u );  }
 
+  inline  size_t  strtoupper( unsigned codepage, char* o, size_t l, const char* s, size_t u = (size_t)-1 )
+    {  return __impl__::strtocase<xlatUtf16Upper>( codepage, o, l, s, u );  }
+
+  inline
+  widestring  strtolower( const widechar* s, size_t l = (size_t)-1 )
+  {
+    widestring  ws;
+
+    if ( l == (size_t)-1 )
+      for ( l = 0; s[l] != 0; ++l ) (void)NULL;
+
+    ws.assign( l, 0 );
+
+    __impl__::utf::recodetext<__impl__::cvt_wide<xlatUtf16Lower> >( (widechar*)ws.c_str(), ws.length(),
+      s, l );
+
+    return ws;
+  }
+
+  inline
+  widestring  strtoupper( const widechar* s, size_t l = (size_t)-1 )
+  {
+    widestring  ws;
+
+    if ( l == (size_t)-1 )
+      for ( l = 0; s[l] != 0; ++l ) (void)NULL;
+
+    ws.assign( l, 0 );
+
+    __impl__::utf::recodetext<__impl__::cvt_wide<xlatUtf16Upper> >( (widechar*)ws.c_str(), ws.length(),
+      s, l );
+
+    return ws;
+  }
+
   template <class Allocator>
   auto  strtolower(
     basestring<char, Allocator>&  cs,
@@ -718,23 +757,6 @@ namespace codepages
     cs.resize( strtolower( cp, (char*)cs.c_str(), cs.size(), ps, nc ) );
     return cs;
   }
-
-  inline
-  charstring  strtolower( unsigned cp, const char* ps, size_t nc = (size_t)-1 )
-  {
-    std::string cs;
-
-    return strtolower( cs, cp, ps, nc );
-  }
-
-  template <class Allocator>
-  charstring  strtolower( unsigned codepage, const basestring<char, Allocator>& s )
-  {
-    return strtolower( codepage, s.c_str(), s.size() );
-  }
-
-  inline  size_t  strtoupper( unsigned codepage, char* o, size_t l, const char* s, size_t u = (size_t)-1 )
-    {  return __impl__::strtocase<xlatUtf16Upper>( codepage, o, l, s, u );  }
 
   template <class Allocator>
   auto  strtoupper(
@@ -752,11 +774,25 @@ namespace codepages
   }
 
   inline
+  charstring  strtolower( unsigned cp, const char* ps, size_t nc = (size_t)-1 )
+  {
+    std::string cs;
+
+    return strtolower( cs, cp, ps, nc );
+  }
+
+  inline
   charstring  strtoupper( unsigned cp, const char* ps, size_t nc = (size_t)-1 )
   {
     std::string cs;
 
     return strtoupper( cs, cp, ps, nc );
+  }
+
+  template <class Allocator>
+  charstring  strtolower( unsigned codepage, const basestring<char, Allocator>& s )
+  {
+    return strtolower( codepage, s.c_str(), s.size() );
   }
 
   template <class Allocator>
@@ -776,22 +812,6 @@ namespace codepages
     return out;
   }
 
-  inline
-  widestring  strtolower( const widechar* s, size_t l = (size_t)-1 )
-  {
-    widestring  ws;
-
-    if ( l == (size_t)-1 )
-      for ( l = 0; s[l] != 0; ++l ) (void)NULL;
-
-    ws.assign( l, 0 );
-
-    __impl__::utf::recodetext<__impl__::cvt_wide<xlatUtf16Lower> >( (widechar*)ws.c_str(), ws.length(),
-      s, l );
-
-    return ws;
-  }
-
   template <class Allocator>
   widestring  strtoupper( const basestring<widechar, Allocator>& s )
   {
@@ -802,6 +822,32 @@ namespace codepages
 
     return out;
   }
+
+# if __cplusplus >= 201703L
+
+  inline
+  widestring  strtolower( const std::basic_string_view<widechar>& s )
+  {
+    widestring  out( s.data(), s.length() );
+
+    __impl__::utf::recodetext<__impl__::cvt_wide<xlatUtf16Lower> >( (widechar*)out.c_str(), out.length(),
+      s.data(), s.length() );
+
+    return out;
+  }
+
+  inline
+  widestring  strtoupper( const std::basic_string_view<widechar>& s )
+  {
+    widestring  out( s.data(), s.length() );
+
+    __impl__::utf::recodetext<__impl__::cvt_wide<xlatUtf16Upper> >( (widechar*)out.c_str(), out.length(),
+      s.data(), s.length() );
+
+    return out;
+  }
+
+# endif
 
   inline  widechar  chartowide( unsigned codepage, char c )
     {
