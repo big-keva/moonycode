@@ -423,7 +423,10 @@ namespace codepages
             else return (size_t)-1;
         }
 
-        return output < outend ? (*output = 0), output - outorg : (size_t)-1;
+        if ( output < outend )
+          *output = 0;
+
+        return source >= srcend ? output - outorg : (size_t)-1;
       }
 
     }   // end utf8 namespace
