@@ -828,8 +828,7 @@ namespace codepages
 
 # if __cplusplus >= 201703L
 
-  inline
-  widestring  strtolower( const std::basic_string_view<widechar>& s )
+  inline  widestring  strtolower( const std::basic_string_view<widechar>& s )
   {
     widestring  out( s.data(), s.length() );
 
@@ -839,8 +838,7 @@ namespace codepages
     return out;
   }
 
-  inline
-  widestring  strtoupper( const std::basic_string_view<widechar>& s )
+  inline  widestring  strtoupper( const std::basic_string_view<widechar>& s )
   {
     widestring  out( s.data(), s.length() );
 
@@ -872,7 +870,8 @@ namespace codepages
       }
     }
 
-  inline  size_t    mbcstowide( unsigned codepage, widechar* o, size_t l, const char* s, size_t u = (size_t)-1 )
+  inline
+  size_t    mbcstowide( unsigned codepage, widechar* o, size_t l, const char* s, size_t u = (size_t)-1 )
     {
       switch ( codepage )
       {
@@ -904,14 +903,33 @@ namespace codepages
     }
 
   template <size_t N>
-  inline  size_t  mbcstowide( unsigned codepage, widechar (&o)[N], const char* s, size_t l = (size_t)-1 )
+  size_t  mbcstowide( unsigned codepage, widechar (&o)[N], const char* s, size_t l = (size_t)-1 )
     {  return mbcstowide( codepage, o, N, s, l );  }
 
   template <unsigned codepage, size_t N>
-  inline  size_t  mbcstowide( widechar (&o)[N], const char* s, size_t l = (size_t)-1 )
+  size_t  mbcstowide( widechar (&o)[N], const char* s, size_t l = (size_t)-1 )
     {  return mbcstowide( codepage, o, N, s, l );  }
 
-  inline  size_t  widetombcs( unsigned codepage, char* o, size_t l, const widechar* s, size_t u = (size_t)-1 )
+  template <size_t N, class Allocator>
+  size_t  mbcstowide( unsigned codepage, widechar (&o)[N], const std::basic_string<char, std::char_traits<char>, Allocator>& s )
+    {  return mbcstowide( codepage, o, N, s.c_str(), s.length() );  }
+
+  template <unsigned codepage, size_t N, class Allocator>
+  size_t  mbcstowide( widechar (&o)[N], const std::basic_string<char, std::char_traits<char>, Allocator>& s )
+    {  return mbcstowide( codepage, o, N, s );  }
+
+# if __cplusplus >= 201703L
+  template <size_t N>
+  size_t  mbcstowide( unsigned codepage, widechar (&o)[N], const std::string_view& s )
+  {  return mbcstowide( codepage, o, N, s.data(), s.length() );  }
+
+  template <unsigned codepage, size_t N>
+  size_t  mbcstowide( widechar (&o)[N], const std::string_view& s )
+    {  return mbcstowide( codepage, o, N, s );  }
+# endif
+
+  inline
+  size_t  widetombcs( unsigned codepage, char* o, size_t l, const widechar* s, size_t u = (size_t)-1 )
     {
       switch ( codepage )
       {
@@ -943,14 +961,15 @@ namespace codepages
     }
 
   template <size_t N>
-  inline  size_t  widetombcs( unsigned codepage, char (&o)[N], const widechar* s, size_t u = (size_t)-1 )
+  size_t  widetombcs( unsigned codepage, char (&o)[N], const widechar* s, size_t u = (size_t)-1 )
     {  return widetombcs( codepage, o, N, s, u );  }
 
   template <unsigned codepage, size_t N>
-  inline  size_t  widetombcs( char (&o)[N], const widechar* s, size_t u = (size_t)-1 )
+  size_t  widetombcs( char (&o)[N], const widechar* s, size_t u = (size_t)-1 )
     {  return widetombcs( codepage, o, N, s, u );  }
 
-  inline  size_t  mbcstombcs( unsigned dstcps, char* o, size_t l, unsigned srccps, const char* s, size_t u = (size_t)-1 )
+  inline
+  size_t  mbcstombcs( unsigned dstcps, char* o, size_t l, unsigned srccps, const char* s, size_t u = (size_t)-1 )
     {
       switch ( dstcps )
       {
@@ -1109,6 +1128,20 @@ namespace codepages
       }
     }
 
+  template <size_t N>
+  size_t  mbcstombcs( unsigned dstcps, char (&o)[N], unsigned srccps, const char* s, size_t l = (size_t)-1 )
+    {  return mbcstombcs( dstcps, o, N, srccps, s, l );  }
+
+  template <size_t N, class Allocator>
+  size_t  mbcstombcs( unsigned dstcps, char (&o)[N], unsigned srccps, const std::basic_string<char, std::char_traits<char>, Allocator>& s )
+    {  return mbcstombcs( dstcps, o, N, srccps, s.c_str(), s.length() );  }
+
+# if __cplusplus >= 201703L
+  template <size_t N>
+  size_t  mbcstombcs( unsigned dstcps, char (&o)[N], unsigned srccps, const std::string_view& s )
+    {  return mbcstombcs( dstcps, o, N, srccps, s.data(), s.size() );  }
+# endif
+
   // std::string wrappers
 
   inline  charstring  widetombcs( unsigned target_cp, const widechar* s, size_t l = (size_t)-1 )
@@ -1159,10 +1192,21 @@ namespace codepages
 
   inline  charstring  widetombcs( unsigned target_cp, const widestring& s )
     {  return widetombcs( target_cp, s.c_str(), s.length() );  }
+
   inline  widestring  mbcstowide( unsigned source_cp, const charstring& s )
     {  return mbcstowide( source_cp, s.c_str(), s.length() );  }
+
   inline  charstring  mbcstombcs( unsigned target_cp, unsigned source_cp, const charstring& s )
     {  return mbcstombcs( target_cp, source_cp, s.c_str(), s.length() );  }
+
+# if __cplusplus >= 201703L
+  inline  charstring  widetombcs( unsigned target_cp, const std::basic_string_view<widechar>& s )
+    {  return widetombcs( target_cp, s.data(), s.length() );  }
+  inline  widestring  mbcstowide( unsigned source_cp, const std::string_view& s )
+    {  return mbcstowide( source_cp, s.data(), s.length() );  }
+  inline  charstring  mbcstombcs( unsigned target_cp, unsigned source_cp, const std::string_view& s )
+    {  return mbcstombcs( target_cp, source_cp, s.data(), s.length() );  }
+# endif
 
  /*
   * detect::codepage( str[, len] );
