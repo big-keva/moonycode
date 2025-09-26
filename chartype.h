@@ -132,20 +132,26 @@ namespace codepages
 
   inline  bool  IsSpace( widechar c )
   {
-    return is_category<codepages::cat_Cc,
-           is_category<codepages::cat_Zs,
-           is_category<codepages::cat_Zl,
-           is_category<codepages::cat_Zp>>>>()( codepages::charType[c] );
+    return is_category<cat_Cc,
+           is_category<cat_Zs,
+           is_category<cat_Zl,
+           is_category<cat_Zp>>>>()( charType[c] );
   }
 
   inline  bool  IsEmpty( widechar c )
   {
-    return is_category<codepages::cat_Cf>()( codepages::charType[c] );
+    return is_category<cat_Cf>()( charType[c] );
   }
 
   inline  bool  IsBlank( widechar c )
   {
     return IsSpace( c ) || IsEmpty( c );
+  }
+
+  inline  bool  IsPunct( widechar c )
+  {
+    return (charType[c] & 0xf0) == cat_P
+        || (charType[c] & 0xf0) == cat_S;
   }
 
 }
