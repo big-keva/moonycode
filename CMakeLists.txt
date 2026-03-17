@@ -106,8 +106,6 @@ if(BUILD_SHARED OR BUILD_STATIC)
 
   add_executable(moonycode-tritree util/tritree.cpp stat/chartype.cpp)
   add_executable(moonycode-mktypes util/mktypes.cpp)
-
-  add_subdirectory(test)
 endif()
 
 #
@@ -150,4 +148,8 @@ if(BUILD_STATIC)
     DESTINATION include/moonycode)
   install(FILES "cmake/MoonyCodeConfig.cmake" 
     DESTINATION "lib/cmake/MoonyCode")
+endif()
+
+if(BUILD_SHARED OR BUILD_STATIC)
+  add_subdirectory(test)
 endif()
