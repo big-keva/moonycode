@@ -1,0 +1,11 @@
+Package: moonycode
+Version: @VERSION@
+Section: libdevel
+Priority: optional
+Architecture: amd64
+Depends: libc6 (>= 2.17)
+Maintainer: Andrey Kovalenko aka Keva <keva@rambler.ru>
+Description: moonycode - fast and tiny cyrillic codepages and unicode support runtime
+  This package contains codepages convertors and decoders shared library for most popular
+  cyrillic codepages: 1251, 866, koi8, utf-8, utf-16 and utf-32.
+

@@ -53,7 +53,7 @@ else()
     -Woverloaded-virtual -Wno-suggest-attribute=format)
 
   if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    add_compile_options(-fno-stack-protector -D_FORTIFY_SOURCE=0 -fno-builtin)
+    add_compile_options(-fno-stack-protector -fno-builtin)
   else()
     add_compile_options(-fstack-protector-all -g)
   endif()
@@ -148,4 +148,6 @@ if(BUILD_STATIC)
   install(
     FILES chartype.h codes.h
     DESTINATION include/moonycode)
+  install(FILES "cmake/MoonyCodeConfig.cmake" 
+    DESTINATION "lib/cmake/MoonyCode")
 endif()
