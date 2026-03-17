@@ -13,4 +13,4 @@ add_executable(test-moonycode
   codes.test.cpp
 )
 
-target_link_libraries(test-moonycode moonycode)
+target_link_libraries(test-moonycode moonycode-objset)
