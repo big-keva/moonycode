@@ -153,6 +153,7 @@ set(CPACK_RPM_COMPONENT_INSTALL ON)
 
 if(WIN32)
   set(CPACK_GENERATOR "ZIP")
+  set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)
 else()
   set(CPACK_GENERATOR "DEB;RPM;TGZ")
 endif()
@@ -160,7 +161,6 @@ endif()
 #
 # DEB specific
 #
-# DEB specific
 set(CPACK_DEB_COMPONENT_INSTALL       ON)
 
 set(CPACK_DEBIAN_DEV_PACKAGE_DEPENDS  "moonycode (= ${CPACK_PACKAGE_VERSION})")
@@ -185,5 +185,11 @@ set(CPACK_RPM_RTM_PACKAGE_NAME        "moonycode")
 set(CPACK_RPM_DEV_PACKAGE_NAME        "moonycode-devel")
 
 set(CPACK_RPM_FILE_NAME               "RPM-DEFAULT")
+
+#
+# WIN specific
+#
+set(CPACK_ARCHIVE_RTM_FILE_NAME "moonycode-${CPACK_PACKAGE_VERSION}-win64")
+set(CPACK_ARCHIVE_DEV_FILE_NAME "moonycode-devel-${CPACK_PACKAGE_VERSION}-win64")
 
 include(CPack)
